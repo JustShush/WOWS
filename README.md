@@ -4,6 +4,29 @@
 
 **War On Webhook Spam** is a proactive project designed to combat the exposure of sensitive webhook URLs on the open internet. Our platform scans publicly available resources, including plaintext and Base64-encoded content, to identify webhook URLs that are inadvertently exposed. Once detected, the project verifies the webhook's functionality, notifies the webhook of its exposure (including the source of the leak), and reports the discovery to our own monitoring system. To protect the exposed webhook further, we implement an auto-delete mechanism to disable or revoke it after 24 hours via a POST request, minimizing potential misuse by malicious actors.
 
+this project is a safeguarding act created to protect leaked discord webhooks, in recent events there has been many webhooks being spammed with random racist/homophobic and confusing messages leading to other random servers that don't seem to be related to it in any way.
+
+our tools have been created to protect everyday users against this and ensure you keep your servers safe.
+you can add our bot from the links provided below, this will aid in deleting webhooks from chats and other forms of protection.
+
+<h3 align="left">**<ins>our  links</ins>**</h3>
+discord bot [here]([botlink](https://discord.com/oauth2/authorize?client_id=747412110782234654&permissions=8&scope=bot%20applications.commands))
+support server [here]([serverlink](https://discord.gg/QT6BVnWnKu))
+
+<h3 align="left">**<ins>Important Tips</ins>**</h3>
+To protect your discord webhooks in future we suggest you: 
+- Don't share your screen when working with webhooks incase you accidentally leak it unless you are sharing your screen with a trusted person.
+- Don't post your webhook around online. (We have no idea why you would do this anyways but you can never be too sure with some people...)
+- Beware of tools you create/publicize. (Even if you have coded a tool you are proud of and want to share it with other people, if you have a webhook in that tool it can be extracted and used maliciously.
+
+
+<h3 align="left">**<ins>Credits to the hard working people behind this project</ins>**</h3>
+- [JustShush](https://github.com/JustShush)
+- [M1ONTOP](https://github.com/M1ONTOP)
+- [ArcticHonour](https://github.com/ArcticHonour)
+- [beigeworm](https://github.com/beigeworm)
+- [pixelmelt](https://github.com/PixelMelt)
+
 <h3 align="center"> Roadmap </h3>
 
   **Scanning**
@@ -13,7 +36,7 @@
   Tasks:
             - Develop modules to crawl and parse public web pages, repositories, and files for potential webhooks.
             - Decode Base64-encoded content and inspect for webhook patterns.
-            - Use pattern matching (e.g., regular expressions) to locate common webhook formats (https://hooks.slack.com, https://discord.com/api/webhooks/, etc.).
+            - Use pattern matching (e.g., regular expressions) to locate common webhook formats (https://discord.com/api/webhooks/, https://discordapp.com/api/webhooks/).
 
 
   **Testing Webhook Validity**
@@ -79,8 +102,3 @@
   Tasks:
             - Write comprehensive documentation covering setup, functionality, and contribution guidelines.
             - Deploy the project as a GitHub repository with CI/CD pipelines to automate builds and testing.
-
-
-
-
-- made by ...
