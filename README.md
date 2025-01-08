@@ -95,8 +95,10 @@ To protect your discord webhooks in future we suggest you:
 
 
 <h3 align="left">Credits to the hard working people behind this project</h3>
-[JustShush](https://github.com/JustShush)
-[M1ONTOP](https://github.com/M1ONTOP)
-[ArcticHonour](https://github.com/ArcticHonour)
-[beigeworm](https://github.com/beigeworm)
-[pixelmelt](https://github.com/PixelMelt)
+<ul>
+  <li><a href="https://github.com/JustShush">JustShush</a></li>
+  <li><a href="https://github.com/M1ONTOP">M1ONTOP</a></li>
+  <li><a href="https://github.com/ArcticHonour">ArcticHonour</a></li>
+  <li><a href="https://github.com/beigeworm">beigeworm</a></li>
+  <li><a href="https://github.com/PixelMelt">pixelmelt</a></li>
+</ul>
