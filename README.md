@@ -8,78 +8,69 @@ this project is a safeguarding act created to protect leaked discord webhooks, i
 <h3 align="center"> Roadmap </h3>
 
   <h3 align="left">Scanning</h3>
-  
-  Objective: Identify potential webhook URLs exposed in plaintext or Base64 encoding across public internet resources.
-        
-  Tasks:
-            - Develop modules to crawl and parse public web pages, repositories, and files for potential webhooks.
-            - Decode Base64-encoded content and inspect for webhook patterns.
-            - Use pattern matching (e.g., regular expressions) to locate common webhook formats (https://discord.com/api/webhooks/, https://discordapp.com/api/webhooks/).
+<p><strong>Objective:</strong> Identify potential webhook URLs exposed in plaintext or Base64 encoding across public internet resources.</p>
+<ul>
+  <li>Develop modules to crawl and parse public web pages, repositories, and files for potential webhooks.</li>
+  <li>Decode Base64-encoded content and inspect for webhook patterns.</li>
+  <li>Use pattern matching (e.g., regular expressions) to locate common webhook formats (e.g., <code>https://discord.com/api/webhooks/</code>, <code>https://discordapp.com/api/webhooks/</code>).</li>
+</ul>
 
+<h3 align="left">Testing Webhook Validity</h3>
+<p><strong>Objective:</strong> Verify that identified webhooks are still live and functional.</p>
+<ul>
+  <li>Perform a non-intrusive HTTP request to check for a valid response without triggering any sensitive actions.</li>
+  <li>Filter out false positives or dead webhooks.</li>
+</ul>
 
-  <h3 align="left">Testing Webhook Validity</h3>
-  
-  Objective: Verify that identified webhooks are still live and functional.
-  
-  Tasks:
-            Perform a non-intrusive HTTP request to check for a valid response without triggering any sensitive actions.
-            Filter out false positives or dead webhooks.
-            
+<h3 align="left">Notification of Exposure</h3>
+<p><strong>Objective:</strong> Alert the owner of the exposed webhook to the potential security risk.</p>
+<ul>
+  <li>Send an alert message to the webhook URL detailing the exposure.</li>
+  <li>Include information such as:
+    <ul>
+      <li>The file/link/URL where the webhook was discovered.</li>
+      <li>A recommendation to revoke and regenerate the webhook immediately.</li>
+    </ul>
+  </li>
+</ul>
 
-  <h3 align="left">Notification of Exposure</h3>
-  
-  Objective: Alert the owner of the exposed webhook to the potential security risk.
-  
-  Tasks:
-            Send an alert message to the webhook URL detailing the exposure.
-            Include information such as:
-                - The file/link/url where the webhook was discovered.
-                - A recommendation to revoke and regenerate the webhook immediately.
+<h3 align="left">Internal Monitoring</h3>
+<p><strong>Objective:</strong> Notify the system’s own monitoring webhook of discovered webhooks and their metadata for auditing and analysis.</p>
+<ul>
+  <li>Log each identified webhook with details (e.g., URL, file, timestamp) to an internal notification webhook for centralized monitoring.</li>
+  <li>Store these logs in a secure database for future reference.</li>
+</ul>
 
+<h3 align="left">Auto Delete Functionality</h3>
+<p><strong>Objective:</strong> Disable exposed webhooks automatically to mitigate abuse.</p>
+<ul>
+  <li>Send a POST request to the exposed webhook with a pre-configured payload that disables or deletes it after 24 hours.</li>
+  <li>Ensure the deletion process is documented and retried in case of failures.</li>
+</ul>
 
-  <h3 align="left">Internal Monitoring</h3>
-  
-  Objective: Notify the system’s own monitoring webhook of discovered webhooks and their metadata for auditing and analysis.
-  
-  Tasks:
-            - Log each identified webhook with details (e.g., URL, file, timestamp) to an internal notification webhook for centralized monitoring.
-            - Store these logs in a secure database for future reference.
-
-
-  <h3 align="left">Auto Delete Functionality</h3>
-  
-  Objective: Disable exposed webhooks automatically to mitigate abuse.
-  
-  Tasks:
-            - Send a POST request to the exposed webhook with a pre-configured payload that disables or deletes it after 24 hours.
-            - Ensure the deletion process is documented and retried in case of failures.
 
 
   <h3 align="left">Error Handling and Reporting</h3>
-  
-  Objective: Manage errors gracefully and provide actionable reports.
+<p><strong>Objective:</strong> Manage errors gracefully and provide actionable reports.</p>
+<ul>
+  <li>Implement retries for failed HTTP requests.</li>
+  <li>Maintain a report of webhooks that could not be notified or deleted.</li>
+</ul>
 
-  Tasks:
-            - Implement retries for failed HTTP requests.
-            - Maintain a report of webhooks that could not be notified or deleted.
+<h3 align="left">Security and Privacy</h3>
+<p><strong>Objective:</strong> Protect the integrity of sensitive data during processing.</p>
+<ul>
+  <li>Ensure all communications (e.g., notifications, logs) are encrypted.</li>
+  <li>Limit access to stored webhook data and implement a strict data retention policy.</li>
+</ul>
 
+<h3 align="left">Documentation and Deployment</h3>
+<p><strong>Objective:</strong> Provide clear guidelines for contributors and users of the project.</p>
+<ul>
+  <li>Write comprehensive documentation covering setup, functionality, and contribution guidelines.</li>
+  <li>Deploy the project as a GitHub repository with CI/CD pipelines to automate builds and testing.</li>
+</ul>
 
-  <h3 align="left">Security and Privacy</h3>
-  
-  Objective: Protect the integrity of sensitive data during processing.
-  
-  Tasks:
-            - Ensure all communications (e.g., notifications, logs) are encrypted.
-            - Limit access to stored webhook data and implement a strict data retention policy.
-
-
-  <h3 align="left">Documentation and Deployment</h3>
-  
-  Objective: Provide clear guidelines for contributors and users of the project.
-  
-  Tasks:
-            - Write comprehensive documentation covering setup, functionality, and contribution guidelines.
-            - Deploy the project as a GitHub repository with CI/CD pipelines to automate builds and testing.
 
 <h3 align="left">our links</h3>
 <ul>
@@ -88,10 +79,18 @@ this project is a safeguarding act created to protect leaked discord webhooks, i
 </ul>
 
 <h3 align="left">Important Tips</h3>
-To protect your discord webhooks in future we suggest you: 
-- Don't share your screen when working with webhooks incase you accidentally leak it unless you are sharing your screen with a trusted person.
-- Don't post your webhook around online. (We have no idea why you would do this anyways but you can never be too sure with some people...)
-- Beware of tools you create/publicize. (Even if you have coded a tool you are proud of and want to share it with other people, if you have a webhook in that tool it can be extracted and used maliciously.
+<p>To protect your Discord webhooks in the future, we suggest you:</p>
+<ul>
+  <li>
+    Don't share your screen when working with webhooks in case you accidentally leak it, unless you are sharing your screen with a trusted person.
+  </li>
+  <li>
+    Don't post your webhook online. (We have no idea why you would do this anyways, but you can never be too sure with some people...)
+  </li>
+  <li>
+    Beware of tools you create/publicize. (Even if you have coded a tool you are proud of and want to share it with other people, if you have a webhook in that tool, it can be extracted and used maliciously.)
+  </li>
+</ul>
 
 
 <h3 align="left">Credits to the hard working people behind this project</h3>
