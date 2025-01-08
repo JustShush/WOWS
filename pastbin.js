@@ -44,6 +44,7 @@ function saveWorkingLinks() {
 	fs.writeFileSync("working_links.json", JSON.stringify([...workingLinks]), "utf8");
 }
 
+const somethingWentWrong = [];
 // Function to fetch a random Pastebin link
 async function checkPastebinLink(requestNumber) {
 	while (true) {
@@ -58,7 +59,7 @@ async function checkPastebinLink(requestNumber) {
 
 		try {
 			//console.log(`[${requestNumber}] Trying URL: ${url}`);
-			const response = await axios.get(url);
+			await axios.get(url);
 
 			// If the response is successful, we found a valid Pastebin link
 			console.log(`[${requestNumber}] Found one: ${url}`);
@@ -71,6 +72,7 @@ async function checkPastebinLink(requestNumber) {
 			} else {
 				// Log any other errors
 				console.error(`[${requestNumber}] Error with link ${url}:`, error.message);
+				somethingWentWrong.push(`${url}`);
 			}
 		} finally {
 			// Mark the link as tested
@@ -89,4 +91,7 @@ async function searchPastebinLinks() {
 	}
 }
 
-searchPastebinLinks();
+searchPastebinLinks().then(() => {
+	if (somethingWentWrong.length >= 1)
+		console.log(somethingWentWrong);
+});
