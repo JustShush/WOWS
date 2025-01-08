@@ -81,20 +81,20 @@ this project is a safeguarding act created to protect leaked discord webhooks, i
             - Write comprehensive documentation covering setup, functionality, and contribution guidelines.
             - Deploy the project as a GitHub repository with CI/CD pipelines to automate builds and testing.
 
-<h3 align="left"><ins>our  links</ins></h3>
+<h3 align="left">our  links</h3>
 discord bot [here](https://discord.com/oauth2/authorize?client_id=747412110782234654&permissions=8&scope=bot%20applications.commands)
 support server [here](https://discord.gg/QT6BVnWnKu)
 
-<h3 align="left">**<ins>Important Tips</ins>**</h3>
+<h3 align="left">Important Tips</h3>
 To protect your discord webhooks in future we suggest you: 
 - Don't share your screen when working with webhooks incase you accidentally leak it unless you are sharing your screen with a trusted person.
 - Don't post your webhook around online. (We have no idea why you would do this anyways but you can never be too sure with some people...)
 - Beware of tools you create/publicize. (Even if you have coded a tool you are proud of and want to share it with other people, if you have a webhook in that tool it can be extracted and used maliciously.
 
 
-<h3 align="left">**<ins>Credits to the hard working people behind this project</ins>**</h3>
-- [JustShush](https://github.com/JustShush)
-- [M1ONTOP](https://github.com/M1ONTOP)
-- [ArcticHonour](https://github.com/ArcticHonour)
-- [beigeworm](https://github.com/beigeworm)
-- [pixelmelt](https://github.com/PixelMelt)
+<h3 align="left"><ins>Credits to the hard working people behind this project</ins></h3>
+[JustShush](https://github.com/JustShush)
+[M1ONTOP](https://github.com/M1ONTOP)
+[ArcticHonour](https://github.com/ArcticHonour)
+[beigeworm](https://github.com/beigeworm)
+[pixelmelt](https://github.com/PixelMelt)
