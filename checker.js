@@ -51,7 +51,7 @@ async function validateAndUpdateWebhooks(filePath) {
 		const uniqueRemoved = [...new Set([...existingRemoved, ...invalidWebhooks])];
 
 		// Update the JSON structure
-		webhooksJson.hooks = validWebhooks.slice(1); // Remaining valid webhooks go to `hooks`
+		webhooksJson.hooks = validWebhooks; // Remaining valid webhooks go to `hooks`
 		webhooksJson.removed = uniqueRemoved; // Store all unique invalid webhooks in `removed`
 
 		// Write the updated JSON back to the file
