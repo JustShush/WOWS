@@ -20,6 +20,7 @@ async function main() {
 	//console.log(res.data);
 	//console.log(res.data.data[0].id);
 	//console.log(res.data)
+	let i = 1;
 	for (data of res.data) {
 		const response = await axios.get(`https://psbdmp.ws/api/v3/dump/${data.id}`).catch((err) => { console.error(err.message.data); });
 		//console.log(response.data.content);
@@ -30,8 +31,11 @@ async function main() {
 				if (webhooksJson.removed.includes(url) || webhooksJson.hooks.includes(url)) {
 					console.log(`Already tested link, generating a new one: ${url}`);
 					return;
-				} else
+				} else {
 					whArray.push(`${webhook}`);
+					console.log(`[${i}] Found one: ${webhook}`);
+					i++;
+				}
 			});
 		}
 	}
@@ -43,4 +47,4 @@ async function main() {
 	await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
 }
 
-main().then(() => { console.log("webhooks:", whArray); });
+main();
