@@ -81,9 +81,11 @@ this project is a safeguarding act created to protect leaked discord webhooks, i
             - Write comprehensive documentation covering setup, functionality, and contribution guidelines.
             - Deploy the project as a GitHub repository with CI/CD pipelines to automate builds and testing.
 
-<h3 align="left">our  links</h3>
-discord bot [here](https://discord.com/oauth2/authorize?client_id=747412110782234654&permissions=8&scope=bot%20applications.commands)
-support server [here](https://discord.gg/QT6BVnWnKu)
+<h3 align="left">our links</h3>
+<ul>
+  <li>Discord bot <a href="https://discord.com/oauth2/authorize?client_id=747412110782234654&permissions=8&scope=bot%20applications.commands">here</a></li>
+  <li>Support server <a href="https://discord.gg/QT6BVnWnKu">here</a></li>
+</ul>
 
 <h3 align="left">Important Tips</h3>
 To protect your discord webhooks in future we suggest you: 
@@ -92,7 +94,7 @@ To protect your discord webhooks in future we suggest you:
 - Beware of tools you create/publicize. (Even if you have coded a tool you are proud of and want to share it with other people, if you have a webhook in that tool it can be extracted and used maliciously.
 
 
-<h3 align="left"><ins>Credits to the hard working people behind this project</ins></h3>
+<h3 align="left">Credits to the hard working people behind this project</h3>
 [JustShush](https://github.com/JustShush)
 [M1ONTOP](https://github.com/M1ONTOP)
 [ArcticHonour](https://github.com/ArcticHonour)
