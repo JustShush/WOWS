@@ -1,13 +1,27 @@
 const { githubToken } = require('./config.json');
 const axios = require("axios");
 const fs = require('fs').promises;
+console.time("RunTime");
 
 // what you want to be searched
 const query = "https://discord.com/api/webhooks/+";
 
-const filePath = "webhooks.json";
+// where you want to search them
+// possibilities: code | repositories
+const where = "code";
+
+// the page to search on github
+// minimum is 1
+const pageNumber = "2";
+
+const filePath = "gwebhooks.json";
 
 function isValidWebhook(url) {
+	// Webhook URL validation constants
+	const WEBHOOK_VALIDATION = {
+		ID_LENGTH: 17,
+		TOKEN_LENGTH: { MIN: 60, MAX: 80 }
+	};
 	try {
 		const urlPath = new URL(url).pathname;
 		const parts = urlPath.split('/');
@@ -38,9 +52,20 @@ function isValidWebhook(url) {
 	}
 }
 
+function removeDuplicates(array) {
+	// Use a Map to store unique objects by their webhook
+	const uniqueObjects = new Map();
+	array.forEach((obj) => {
+		if (!uniqueObjects.has(obj.webhook)) {
+			uniqueObjects.set(obj.webhook, obj);
+		}
+	});
+	return Array.from(uniqueObjects.values());
+}
+
 // try to implement a way to fetch from other pages using &page=2
 async function githubSearch() {
-	const url = `https://api.github.com/search/code?q=${query}&per_page=100&sort=indexed&order=desc&page=2`;
+	const url = `https://api.github.com/search/${where}?q=${query}&per_page=100&sort=updated&order=desc&page=${pageNumber}`;
 
 	var whArray = [];
 
@@ -64,8 +89,8 @@ async function githubSearch() {
 		const preJson = await fs.readFile(filePath, 'utf8');
 		const webhooksJson = JSON.parse(preJson);
 
-		let invalidCount = 1;
-		let i = 1;
+		let invalidCount = 0;
+		let i = 0;
 		// Iterate over each item to fetch file content
 		for (const item of items) {
 			const fileUrl = item.url; // URL to fetch the file content
@@ -85,14 +110,20 @@ async function githubSearch() {
 					matches.forEach((webhook) => {
 						if (!isValidWebhook(webhook)) return invalidCount++;
 						// Skip the link if it's already tested
-						if (webhooksJson.removed.includes(webhook) || webhooksJson.hooks.includes(webhook)) {
+						if (webhooksJson.gwh.includes(webhook)) {
 							console.log(`Already tested link: ${webhook}`);
 							return;
 						} else {
 							console.log(`Found webhook in file: ${item.html_url}`);
-							console.log(`[${i}] Webhook: ${webhook}`);
-							whArray.push(`${webhook}`);
 							i++;
+							console.log(`[${i}] Webhook: ${webhook}`);
+							const data = {
+								path: item.path,
+								name: item.name,
+								html_url: item.html_url,
+								webhook: webhook
+							};
+							whArray.push(data);
 						}
 					})
 				}
@@ -104,14 +135,26 @@ async function githubSearch() {
 		console.log(`Invalid links found: ${invalidCount}`);
 
 		// Update the JSON structure
-		webhooksJson.hooks = [...webhooksJson.hooks, ...whArray];
-	
+		webhooksJson.gwh = [...webhooksJson.gwh, ...whArray];
+
+		webhooksJson.gwh = removeDuplicates(webhooksJson.gwh);
+
 		// Write the updated JSON back to the file
 		await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
+
+		// save into webhooks.json
+		// Read and parse the JSON file
+		const whPreJson = await fs.readFile("webhooks.json", 'utf8');
+		const whsJson = JSON.parse(whPreJson);
+
+		whsJson.hooks = [...whsJson.hooks, ...whArray.map(obj => obj.webhook)];
+
+		// Write the updated JSON back to the file
+		await fs.writeFile("webhooks.json", JSON.stringify(whsJson, null, "\t"));
 
 	} catch (err) {
 		console.error('Error during GitHub search:', err.response?.data || err.message);
 	}
 }
 
-githubSearch();
+githubSearch().then(() => { console.timeEnd("RunTime"); });
