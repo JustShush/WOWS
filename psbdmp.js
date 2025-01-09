@@ -20,7 +20,7 @@ async function main() {
 	//console.log(res.data);
 	//console.log(res.data.data[0].id);
 	//console.log(res.data)
-	let i = 1;
+	let i = 0;
 	for (data of res.data) {
 		const response = await axios.get(`https://psbdmp.ws/api/v3/dump/${data.id}`).catch((err) => { console.error(err.message.data); });
 		//console.log(response.data.content);
@@ -33,8 +33,8 @@ async function main() {
 					return;
 				} else {
 					whArray.push(`${webhook}`);
-					console.log(`[${i}] Found one: ${webhook}`);
 					i++;
+					console.log(`[${i}] Found one: ${webhook}`);
 				}
 			});
 		}
