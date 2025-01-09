@@ -58,8 +58,8 @@ async function validateAndUpdateWebhooks(filePath) {
 		await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
 
 		console.log('Webhooks validated and updated successfully.');
-		console.log(`[${validWebhooks.length}] Valid webhooks:`, validWebhooks);
-		console.log(`[${invalidWebhooks.length}] Invalid webhooks:`, invalidWebhooks);
+		console.log(`Valid webhooks:`, validWebhooks, `[${validWebhooks.length}]`);
+		console.log(`Invalid webhooks:`, invalidWebhooks, `[${invalidWebhooks.length}]`);
 	} catch (error) {
 		console.error('Error validating and updating webhooks:', error.message);
 	}
