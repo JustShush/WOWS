@@ -1,6 +1,8 @@
 const fs = require('fs').promises;
 const axios = require('axios');
 
+console.time("RunTime");
+
 /**
  * Checks if a Discord webhook is valid.
  * @param {string} webhookUrl - The Discord webhook URL to check.
@@ -38,11 +40,16 @@ async function validateAndUpdateWebhooks(filePath) {
 
 		// Validate all webhooks
 		for (const webhook of allWebhooks) {
-			const isValid = await isWebhookValid(webhook);
-			if (isValid) {
-				validWebhooks.push(webhook);
+			if (webhooksJson.removed.includes(webhook) || webhooksJson.hooks.includes(webhook)) {
+				console.log(`Already tested link: ${webhook}`);
+				continue;
 			} else {
-				invalidWebhooks.push(webhook);
+				const isValid = await isWebhookValid(webhook);
+				if (isValid) {
+					validWebhooks.push(webhook);
+				} else {
+					invalidWebhooks.push(webhook);
+				}
 			}
 		}
 
@@ -68,5 +75,5 @@ async function validateAndUpdateWebhooks(filePath) {
 // Example usage
 (async () => {
 	const filePath = './webhooks.json'; // Path to your JSON file
-	await validateAndUpdateWebhooks(filePath);
+	await validateAndUpdateWebhooks(filePath).then(() => { console.timeEnd("RunTime"); });
 })();
