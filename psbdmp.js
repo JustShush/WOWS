@@ -29,7 +29,7 @@ async function main() {
 			matches.forEach(webhook => {
 				// Skip the link if it's already tested
 				if (webhooksJson.removed.includes(url) || webhooksJson.hooks.includes(url)) {
-					console.log(`Already tested link, generating a new one: ${url}`);
+					console.log(`Already tested link: ${url}`);
 					return;
 				} else {
 					whArray.push(`${webhook}`);
