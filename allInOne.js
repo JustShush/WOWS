@@ -145,7 +145,7 @@ const deleteWebhooks = async () => {
 };
 
 function allInOne() {
-	sendToAllWebhoks(data).then( () => {
+	sendToAllWebhoks(data).then(() => {
 		deleteWebhooks();
 	})
 }
