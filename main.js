@@ -7,7 +7,7 @@ console.time("RunTime");
 
 let data = {
 	username: "!SAFETY!",
-	content: "# **:warning: Warning: Your Discord webhook has been leaked!**\n\nYour webhook is now exposed and can be used by unauthorized individuals to spam or harm your server. We have found this webhook online that can be intercepted by anyone! Luckily we are white hats and we wont cause any harm. Please Delete the compromised webhook immediately and create a new one to secure your server. Keep webhook URLs private and share them only with trusted individuals or systems. For more information, visit discord.gg/xgYU5WDe",
+	content: "# **:warning: Warning: Your Discord webhook has been leaked!**\n\n## Your webhook was exposed online and can be used by unauthorized individuals to spam or harm your server.\nWe have found this webhook online that can be intercepted by anyone! Luckily we are white hats and we wont cause any harm. **If you don't delete the compromised webhook in the next minutes we will delete it for your safety**. Keep webhook URLs private and share them only with trusted individuals or systems. For more information, visit discord.gg/xgYU5WDe",
 	tts: true
 }
 
