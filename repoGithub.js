@@ -10,7 +10,7 @@ const query = "https://discord.com/api/webhooks/";
 // false to recently updated | true for best match
 const bestMatch = false;
 
-const filePath = "gReposWh.json";
+const filePath = "gwebhooks.json";
 
 /**
  * Checks if a Discord webhook is valid.
@@ -123,7 +123,7 @@ async function repoSearch() {
 								const data = {
 									repoOwner: repo.owner.login,
 									repoName: repo.name,
-									repoUrl: repo.html_url,
+									html_url: repo.html_url,
 									webhook: wh
 								}
 								whArray.push(data);
