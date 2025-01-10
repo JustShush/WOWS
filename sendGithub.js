@@ -11,17 +11,13 @@ async function main() {
 		const payload = {
 			username: "🚨 **Webhook Leak Alert!** 🚨",
 			avatar_url: "https://github.com/JustShush/WOWS/blob/main/imgs/transparent.png?raw=true",
-			content: `@everyone last warning!\n# 🚨 **Webhook Leak Alert!** 🚨\nImportant information about a leak has been detected. Please review the details below.\n\n### For more information join our support server discord.gg/xgYU5WDe`,
+			content: `@everyone last warning!\n# 🚨 **Your Discord webhook has been leaked!** 🚨\n## Your webhook was exposed online and can be used by unauthorized individuals to spam or harm your server.\nWe have found this webhook online that can be intercepted by anyone! Luckily we are white hats and we wont cause any harm. **If you don't delete the compromised webhook in the next minutes we will delete it for your safety**. Keep webhook URLs private and share them only with trusted individuals or systems.\n\n### For more information join our support server discord.gg/xgYU5WDe`,
 			embeds: [
 				{
 					title: "Webhook Leak Details",
 					description: "Important details about the leak have been identified:",
 					color: 0xff0000, // Red color
-					fields: [
-						{ name: "File Name", value: webhook.name, inline: true },
-						{ name: "File Path", value: webhook.path, inline: true },
-						{ name: "GitHub URL", value: `[Click here](${webhook.html_url})`, inline: false }
-					],
+					fields: [],
 					footer: {
 						text: "Automated Alert System",
 						icon_url: "https://github.com/JustShush/WOWS/blob/main/imgs/transparent.png?raw=true"
@@ -31,6 +27,15 @@ async function main() {
 			],
 			tts: true
 		};
+		if (webhook.repoName) {
+			payload.embeds[0].fields.push({ name: "Repository Owner", value: webhook.repoOwner, inline: true });
+			payload.embeds[0].fields.push({ name: "Repository Name", value: webhook.repoName, inline: true });
+			payload.embeds[0].fields.push({ name: "GitHub URL", value: `[Click here](${webhook.html_url})`, inline: false });
+		} else if (webhook.name) {
+			payload.embeds[0].fields.push({ name: "File Name", value: webhook.name, inline: true });
+			payload.embeds[0].fields.push({ name: "File Path", value: webhook.path, inline: true });
+			payload.embeds[0].fields.push({ name: "GitHub URL", value: `[Click here](${webhook.html_url})`, inline: false });
+		}
 		try {
 			await axios.post(webhook.webhook, payload);
 			i++;
