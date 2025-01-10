@@ -14,6 +14,10 @@ const where = "code";
 // minimum is 1
 const pageNumber = "1";
 
+// to fetch for best match or recently updated
+// false to recently updated | true for best match
+const bestMatch = false;
+
 const filePath = "gwebhooks.json";
 
 /**
@@ -79,7 +83,7 @@ function removeDuplicates(array) {
 
 // try to implement a way to fetch from other pages using &page=2
 async function githubSearch() {
-	const url = `https://api.github.com/search/${where}?q=${query}&per_page=100&sort=updated&order=desc&page=${pageNumber}`;
+	const url = `https://api.github.com/search/${where}?q=${query}&per_page=100${bestMatch ? "" : "&sort=updated"}&order=desc&page=${pageNumber}`;
 
 	var whArray = [];
 
