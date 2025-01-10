@@ -1,7 +1,7 @@
 const { githubToken } = require('./config.json');
 const axios = require("axios");
 const fs = require('fs').promises;
-console.time("RunTime");
+//console.time("RunTime");
 
 // what you want to be searched
 const query = "https://discord.com/api/webhooks/";
@@ -175,4 +175,6 @@ async function repoSearch() {
 
 }
 
-repoSearch().then(() => { console.timeEnd("RunTime"); });
+module.exports = { repoSearch };
+
+//repoSearch().then(() => { console.timeEnd("RunTime"); });
