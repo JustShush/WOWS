@@ -108,7 +108,7 @@ async function repoSearch() {
 				let i = 0;
 				for (const repo of res.data.items) {
 					const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
-					const matches = repo.description.match(webhookRegex);
+					const matches = repo.description.match(webhookRegex) || repo.name.match(webhookRegex);
 					if (matches) {
 						matches.forEach((wh) => {
 							//console.log(repo);
