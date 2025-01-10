@@ -28,6 +28,9 @@ async function validateAndUpdateWebhooks(filePath) {
 		const data = await fs.readFile(filePath, 'utf8');
 		const webhooksJson = JSON.parse(data);
 
+		// remove duplicates
+		webhooksJson.hooks = [...new Set(webhooksJson.hooks)];
+
 		const allWebhooks = [];
 
 		// Combine all webhooks into a single array for processing
@@ -40,7 +43,7 @@ async function validateAndUpdateWebhooks(filePath) {
 
 		// Validate all webhooks
 		for (const webhook of allWebhooks) {
-			if (webhooksJson.removed.includes(webhook) || webhooksJson.hooks.includes(webhook)) {
+			if (webhooksJson.removed.includes(webhook)) {
 				console.log(`Already tested link: ${webhook}`);
 				continue;
 			} else {
@@ -58,7 +61,7 @@ async function validateAndUpdateWebhooks(filePath) {
 		const uniqueRemoved = [...new Set([...existingRemoved, ...invalidWebhooks])];
 
 		// Update the JSON structure
-		webhooksJson.hooks = validWebhooks; // Remaining valid webhooks go to `hooks`
+		webhooksJson.hooks = [...new Set(validWebhooks)]; // Remaining valid webhooks go to `hooks`
 		webhooksJson.removed = uniqueRemoved; // Store all unique invalid webhooks in `removed`
 
 		// Write the updated JSON back to the file
