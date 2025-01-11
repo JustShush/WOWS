@@ -36,6 +36,7 @@ async function main() {
 			payload.embeds[0].fields.push({ name: "File Path", value: webhook.path, inline: true });
 			payload.embeds[0].fields.push({ name: "GitHub URL", value: `[Click here](${webhook.html_url})`, inline: false });
 		}
+		if (webhook.webhook.startsWith("https://media.guilded.gg/webhooks/")) { payload.username = "Webhook Leak Alert!"; payload.content.replaceAll("Discord", "Guilded")};
 		try {
 			await axios.post(webhook.webhook, payload);
 			i++;
