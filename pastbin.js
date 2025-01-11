@@ -66,6 +66,10 @@ async function checkPastebinLink(requestNumber) {
 			workingLinks.add(url);
 			saveWorkingLinks(); // Save the updated set to the file
 		} catch (error) {
+			if (error.response?.status === 403) {
+				console.log(`[${requestNumber}] Had to stop cuz of staus 403.`, error.message);
+				process.exit();
+			}
 			if (error.response?.status === 404) {
 				// Pastebin returned 404 - the link doesn't exist
 				console.log(`[${requestNumber}] Skipped this link (404): ${url}`);
@@ -85,13 +89,15 @@ async function checkPastebinLink(requestNumber) {
 
 // Main function to search 10 random Pastebin links
 async function searchPastebinLinks() {
+	console.time("RunTime");
 	for (let i = 1; i <= 1000; i++) {
 		await checkPastebinLink(i);
-		//await sleep(2000); // Add a 2-second delay between requests
+		await sleep(500); // Add a 2-second delay between requests
 	}
+	if (somethingWentWrong.length >= 1)
+		console.log("something went wrong array:", somethingWentWrong);
 }
 
 searchPastebinLinks().then(() => {
-	if (somethingWentWrong.length >= 1)
-		console.log(somethingWentWrong);
+	console.timeEnd("RunTime");
 });
