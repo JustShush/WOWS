@@ -80,7 +80,7 @@ async function repoSearch() {
 	while (true) {
 		try {
 			console.log(`Fetching page ${page}...`);
-			const url = `https://api.github.com/search/repositories?q=${query}&per_page=100${bestMatch ? "" : "&sort=updated"}&order=desc${page > 1 ? `&page=${page}` : ""}`;
+			const url = `https://api.github.com/search/repositories?q=${query}&per_page=100${bestMatch ? "" : "&sort=updated"}&order=desc${page >= 1 ? `&page=${page}` : ""}`;
 
 			let whArray = [];
 
@@ -139,10 +139,10 @@ async function repoSearch() {
 
 				webhooksJson.gwh = removeDuplicates(webhooksJson.gwh);
 
-				webhooksJson.gwh = (await Promise.all(webhooksJson.gwh.map(async (item) => {
+				/* webhooksJson.gwh = (await Promise.all(webhooksJson.gwh.map(async (item) => {
 					const isValid = await whChecker(item.webhook);
 					return isValid ? item : null; // If valid, keep the item; otherwise, discard it
-				}))).filter(item => item !== null); // Filter out the `null` values
+				}))).filter(item => item !== null); // Filter out the `null` values */
 
 				// Write the updated JSON back to the file
 				await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
