@@ -51,7 +51,7 @@ async function main() {
 	const preJson = await fs.readFile(filePath, 'utf8');
 	const webhooksJson = JSON.parse(preJson);
 
-	const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
+	const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
 	const res = await axios.get(url).catch((err) => { console.error(err.message.data); });
 	//console.log(res.data);
 	//console.log(res.data.data[0].id);
