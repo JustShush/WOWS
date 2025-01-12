@@ -8,12 +8,17 @@ console.time("RunTime");
  * @param {string} webhookUrl - The Discord webhook URL to check.
  * @returns {Promise<boolean>} - Returns true if the webhook is valid, false otherwise.
  */
-async function isWebhookValid(webhookUrl) {
+async function isWebhookValid(webhookUrl, retries = 3) {
 	try {
 		const response = await axios.get(webhookUrl);
-		return response.status === 200; // Valid webhook
-	} catch {
-		return false; // Invalid webhook
+		return response.status === 200;
+	} catch (err) {
+		if (retries > 0 && err.response?.status === 429) { // Too many requests
+			console.log(`Rate limited. Retrying in ${3 ** (4 - retries)} seconds...`);
+			await new Promise((resolve) => setTimeout(resolve, 3 ** (4 - retries) * 1000));
+			return whChecker(webhookUrl, retries - 1);
+		}
+		return false;
 	}
 }
 
