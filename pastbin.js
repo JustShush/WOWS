@@ -36,12 +36,12 @@ const workingLinks = new Set(safeLoadJSON("working_links.json"));
 
 // Save tested links to a file
 function saveTestedLinks() {
-	fs.writeFileSync("tested_links.json", JSON.stringify([...testedLinks]), "utf8");
+	fs.writeFileSync("tested_links.json", JSON.stringify([...testedLinks], null, '\t'), "utf8");
 }
 
 // Save working links to a file
 function saveWorkingLinks() {
-	fs.writeFileSync("working_links.json", JSON.stringify([...workingLinks]), "utf8");
+	fs.writeFileSync("working_links.json", JSON.stringify([...workingLinks], null, '\t'), "utf8");
 }
 
 const somethingWentWrong = [];
@@ -52,7 +52,7 @@ async function checkPastebinLink(requestNumber) {
 		const url = `https://pastebin.com/raw/${randomID}`;
 
 		// Skip the link if it's already tested
-		if (testedLinks.has(url)) {
+		if (require('./tested_links.json').includes(url)) {
 			console.log(`[${requestNumber}] Already tested link, generating a new one: ${url}`);
 			continue; // Generate a new link
 		}
@@ -92,7 +92,7 @@ async function searchPastebinLinks() {
 	console.time("RunTime");
 	for (let i = 1; i <= 1000; i++) {
 		await checkPastebinLink(i);
-		await sleep(500); // Add a 2-second delay between requests
+		await sleep(1000); // Add a 2-second delay between requests
 	}
 	if (somethingWentWrong.length >= 1)
 		console.log("something went wrong array:", somethingWentWrong);
