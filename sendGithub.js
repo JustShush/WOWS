@@ -38,9 +38,10 @@ async function main() {
 		}
 		if (webhook.webhook.startsWith("https://media.guilded.gg/webhooks/")) { payload.username = "Webhook Leak Alert!"; payload.content.replaceAll("Discord", "Guilded")};
 		try {
-			await axios.post(webhook.webhook, payload);
+			const res = await axios.post(webhook.webhook, payload);
+			if (res.message == "Unknown Webhook" || res.code == 10015) return console.log("in", webhook.webhook);
 			i++;
-			console.log(`[${i}] Message sent successfully!`);
+			console.log(`[${i}] Webhook warning message sent successfully!`);
 		} catch (err) {
 			console.error('Error sending message:', err.response?.data || err.message, webhook.webhook);
 			toRm.push(webhook.webhook);
