@@ -1,18 +1,11 @@
 const { githubToken } = require('./config.json');
 const axios = require("axios");
 const fs = require('fs').promises;
-//console.time("RunTime");
+
+// make the search in code but with pagination
 
 // what you want to be searched
 const query = "https://discord.com/api/webhooks/";
-
-// where you want to search them
-// possibilities: code | repositories
-const where = "code";
-
-// the page to search on github
-// minimum is 1
-const pageNumber = "1";
 
 // to fetch for best match or recently updated
 // false to recently updated | true for best match
@@ -25,12 +18,17 @@ const filePath = "gwebhooks.json";
  * @param {string} webhookUrl - The Discord webhook URL to check.
  * @returns {Promise<boolean>} - Returns true if the webhook is valid, false otherwise.
  */
-async function whChecker(webhookUrl) {
+async function whChecker(webhookUrl, retries = 3) {
 	try {
 		const response = await axios.get(webhookUrl);
-		return response.status === 200; // Valid webhook
-	} catch {
-		return false; // Invalid webhook
+		return response.status === 200;
+	} catch (err) {
+		if (retries > 0 && err.response?.status === 429) { // Too many requests
+			console.log(`Rate limited. Retrying in ${3 ** (4 - retries)} seconds...`);
+			await new Promise((resolve) => setTimeout(resolve, 3 ** (4 - retries) * 1000));
+			return whChecker(webhookUrl, retries - 1);
+		}
+		return false;
 	}
 }
 
@@ -81,105 +79,117 @@ function removeDuplicates(array) {
 	return Array.from(uniqueObjects.values());
 }
 
-// try to implement a way to fetch from other pages using &page=2
 async function githubSearch() {
-	const url = `https://api.github.com/search/${where}?q=${query}&per_page=100${bestMatch ? "" : "&sort=updated"}&order=desc&page=${pageNumber}`;
 
-	var whArray = [];
+	let page = 1;
+	while (true) {
 
-	try {
-		// Perform the initial search
-		const res = await axios.get(url, {
-			headers: {
-				Authorization: `token ${githubToken}`
-			}
-		});
+		var whArray = [];
+		try {
+			console.log(`Fetching page ${page}...`);
+			const url = `https://api.github.com/search/code?q=${query}&per_page=100${bestMatch ? "" : "&sort=updated"}&order=desc${page >= 1 ? `&page=${page}` : ""}`;
 
-		const items = res.data.items;
-
-		// If no items are found, exit early
-		if (!items || items.length === 0) {
-			console.log("No results found.");
-			return;
-		}
-
-		// Read and parse the JSON file
-		const preJson = await fs.readFile(filePath, 'utf8');
-		const webhooksJson = JSON.parse(preJson);
-
-		// Read and parse the JSON file
-		const whPreJson = await fs.readFile("webhooks.json", 'utf8');
-		const whsJson = JSON.parse(whPreJson);
-
-		let invalidCount = 0;
-		let i = 0;
-		// Iterate over each item to fetch file content
-		for (const item of items) {
-			const fileUrl = item.url; // URL to fetch the file content
-
-			try {
-				const fileRes = await axios.get(fileUrl, {
-					headers: {
-						Authorization: `token ${githubToken}`
-					}
-				});
-
-				const fileContent = Buffer.from(fileRes.data.content, 'base64').toString('utf-8');
-				const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
-
-				const matches = fileContent.match(webhookRegex);
-				if (matches) {
-					matches.forEach((webhook) => {
-						if (!isValidWebhook(webhook)) return invalidCount++;
-						// Skip the link if it's already tested
-						if (whsJson.removed.includes(webhook)) {
-							console.log(`Already tested link: ${webhook}`);
-							return;
-						} else {
-							console.log(`Found webhook in file: ${item.html_url}`);
-							i++;
-							console.log(`[${i}] Webhook: ${webhook}`);
-							const data = {
-								path: item.path,
-								name: item.name,
-								html_url: item.html_url,
-								webhook: webhook
-							};
-							whArray.push(data);
-						}
-					})
+			const res = await axios.get(url, {
+				headers: {
+					Authorization: `token ${githubToken}`
 				}
-			} catch (fileErr) {
-				console.error(`Error fetching file content for ${item.html_url}:`, fileErr.response?.data || fileErr.message);
+			});
+
+			const items = res.data.items;
+
+			// If no items are found, exit early
+			if (!items || items.length === 0) {
+				console.log("No results found.", res.data);
+				return;
 			}
+
+			// Read and parse the JSON file
+			const preJson = await fs.readFile(filePath, 'utf8');
+			const webhooksJson = JSON.parse(preJson);
+
+			// Read and parse the JSON file
+			const whPreJson = await fs.readFile("webhooks.json", 'utf8');
+			const whsJson = JSON.parse(whPreJson);
+
+			let invalidCount = 0;
+			let i = 0;
+			// Iterate over each item to fetch file content
+			for (const item of items) {
+				const fileUrl = item.url; // URL to fetch the file content
+
+				try {
+					const fileRes = await axios.get(fileUrl, {
+						headers: {
+							Authorization: `token ${githubToken}`
+						}
+					});
+
+					const fileContent = Buffer.from(fileRes.data.content, 'base64').toString('utf-8');
+					const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
+
+					const matches = fileContent.match(webhookRegex);
+					if (matches) {
+						matches.forEach((webhook) => {
+							if (!isValidWebhook(webhook)) return invalidCount++;
+							// Skip the link if it's already tested
+							if (whsJson.removed.includes(webhook)) {
+								console.log(`Already tested link: ${webhook}`);
+								return;
+							} else {
+								console.log(`Found webhook in file: ${item.html_url}`);
+								i++;
+								console.log(`[${i}] Webhook: ${webhook}`);
+								const data = {
+									path: item.path,
+									name: item.name,
+									html_url: item.html_url,
+									webhook: webhook
+								};
+								whArray.push(data);
+							}
+						})
+					}
+				} catch (fileErr) {
+					console.error(`Error fetching file content for ${item.html_url}:`, fileErr.response?.data || fileErr.message);
+				}
+			}
+
+			console.log(`Invalid links found: ${invalidCount}`);
+
+			// Update the JSON structure
+			webhooksJson.gwh = [...webhooksJson.gwh, ...whArray];
+
+			webhooksJson.gwh = removeDuplicates(webhooksJson.gwh);
+
+			webhooksJson.gwh = (await Promise.all(webhooksJson.gwh.map(async (item) => {
+				const isValid = await whChecker(item.webhook);
+				return isValid ? item : null; // If valid, keep the item; otherwise, discard it
+			}))).filter(item => item !== null); // Filter out the `null` values
+
+			// Write the updated JSON back to the file
+			await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
+
+			// save into webhooks.json
+			whsJson.hooks = [...whsJson.hooks, ...whArray.map(obj => obj.webhook)];
+
+			// remove duplicates
+			whsJson.hooks = [...new Set(whsJson.hooks)];
+
+			// Write the updated JSON back to the file
+			await fs.writeFile("webhooks.json", JSON.stringify(whsJson, null, "\t"));
+			// Add delay between requests
+			console.log(`Waiting 10 sec to fetch the next page: ${page + 1}`);
+			await new Promise(resolve => setTimeout(resolve, 10_000));
+			page++;
+		} catch (err) {
+			if (err.response.status == 422)
+				console.error(`ERROR: Cannot access beyond the first 1000 results, or the endpoint has been spammed. when trying to fetch page: ${page}`, err.response.statusText)
+			else if (err.response)
+				console.error(`Error ${err.response.status} on page ${page}: ${err.response.statusText}`);
+			else
+				console.error(`Error fetching page ${page}:`, err.message);
+			break;
 		}
-
-		console.log(`Invalid links found: ${invalidCount}`);
-
-		// Update the JSON structure
-		webhooksJson.gwh = [...webhooksJson.gwh, ...whArray];
-
-		webhooksJson.gwh = removeDuplicates(webhooksJson.gwh);
-
-		webhooksJson.gwh = (await Promise.all(webhooksJson.gwh.map(async (item) => {
-			const isValid = await whChecker(item.webhook);
-			return isValid ? item : null; // If valid, keep the item; otherwise, discard it
-		}))).filter(item => item !== null); // Filter out the `null` values
-
-		// Write the updated JSON back to the file
-		await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
-
-		// save into webhooks.json
-		whsJson.hooks = [...whsJson.hooks, ...whArray.map(obj => obj.webhook)];
-
-		// remove duplicates
-		whsJson.hooks = [...new Set(whsJson.hooks)];
-
-		// Write the updated JSON back to the file
-		await fs.writeFile("webhooks.json", JSON.stringify(whsJson, null, "\t"));
-
-	} catch (err) {
-		console.error('Error during GitHub search:', err.response?.data || err.message);
 	}
 }
 
