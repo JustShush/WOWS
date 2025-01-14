@@ -16,7 +16,7 @@ async function isWebhookValid(webhookUrl, retries = 3) {
 		if (retries > 0 && err.response?.status === 429) { // Too many requests
 			console.log(`Rate limited. Retrying in ${3 ** (4 - retries)} seconds...`);
 			await new Promise((resolve) => setTimeout(resolve, 3 ** (4 - retries) * 1000));
-			return whChecker(webhookUrl, retries - 1);
+			return isWebhookValid(webhookUrl, retries - 1);
 		}
 		return false;
 	}
