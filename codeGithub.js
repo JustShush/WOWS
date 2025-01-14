@@ -5,13 +5,25 @@ const fs = require('fs').promises;
 // make the search in code but with pagination
 
 // what you want to be searched
-const query = "https://discord.com/api/webhooks/";
+const query = "discord bot token";
 
 // to fetch for best match or recently updated
 // false to recently updated | true for best match
 const bestMatch = false;
 
 const filePath = "gwebhooks.json";
+
+const color = {
+	red: "\x1b[31m",
+	orange: "\x1b[38;5;202m",
+	yellow: "\x1b[33m",
+	green: "\x1b[32m",
+	blue: "\x1b[34m",
+	pink: "\x1b[38;5;213m",
+	torquise: "\x1b[38;5;45m",
+	purple: "\x1b[38;5;57m",
+	reset: "\x1b[0m",
+};
 
 /**
  * Checks if a Discord webhook is valid.
@@ -24,8 +36,8 @@ async function whChecker(webhookUrl, retries = 3) {
 		return response.status === 200;
 	} catch (err) {
 		if (retries > 0 && err.response?.status === 429) { // Too many requests
-			console.log(`Rate limited. Retrying in ${3 ** (4 - retries)} seconds...`);
-			await new Promise((resolve) => setTimeout(resolve, 3 ** (4 - retries) * 1000));
+			console.log(`${color.red}Rate limited. Retrying in ${(3 * 2) ** (4 - retries)} seconds...${color.reset}`);
+			await new Promise((resolve) => setTimeout(resolve, (3 * 2) ** (4 - retries) * 1000));
 			return whChecker(webhookUrl, retries - 1);
 		}
 		return false;
@@ -127,12 +139,58 @@ async function githubSearch() {
 					const fileContent = Buffer.from(fileRes.data.content, 'base64').toString('utf-8');
 					const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
 
+					const regex = /aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv[A-Za-z0-9+/=]*/g;
+					const matchesBase64 = fileContent.match(regex);
+					if (matchesBase64) {
+						for (base of matchesBase64) {
+							const decoded = Buffer.from(base, 'base64').toString('utf-8');
+							const matching = decoded.match(webhookRegex);
+							if (matching) {
+								matching.forEach((wh) => {
+									if (!isValidWebhook(wh)) return invalidCount++;
+									if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
+										console.log(`Already tested link: ${wh}`);
+										return;
+									} else {
+										console.log(`Found webhook in file: ${item.html_url}`);
+										i++;
+										console.log(`[${i}] Webhook: ${wh}`);
+										const data = {
+											path: item.path,
+											name: item.name,
+											html_url: item.html_url,
+											webhook: wh
+										};
+										whArray.push(data);
+									}
+								})
+							}
+						}
+					}
+
+					const tokensPreJson = await fs.readFile('tokens.json', 'utf8');
+					const tokensJson = JSON.parse(tokensPreJson);
+
+					const tokens = fileContent.match(/[a-zA-Z0-9_\-]{24}\.[a-zA-Z0-9_\-]{6}\.[a-zA-Z0-9_\-]{27}/g);
+					if (tokens) {
+						tokens.forEach((t) => {
+							if (tokensJson.invalid.includes(t) || tokensJson.valid.includes(t)) {
+								console.log(`Already tested TOKEN or its already in the valid array: ${t}`);
+								return;
+							} else {
+								tokensJson.valid = [...tokensJson.valid, t];
+								console.log(t);
+							}
+						});
+						await fs.writeFile('tokens.json', JSON.stringify(tokensJson, null, '\t'));
+					}
+
 					const matches = fileContent.match(webhookRegex);
 					if (matches) {
 						matches.forEach((webhook) => {
 							if (!isValidWebhook(webhook)) return invalidCount++;
 							// Skip the link if it's already tested
-							if (whsJson.removed.includes(webhook)) {
+							if (whsJson.removed.includes(webhook) || whsJson.hooks.includes(webhook)) {
 								console.log(`Already tested link: ${webhook}`);
 								return;
 							} else {
