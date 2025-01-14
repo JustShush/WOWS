@@ -112,34 +112,63 @@ async function fetchContents(owner, repo, regex, path = '') {
 
 		const ignoreFiles = [
 			"license",
+			"license.md",
+			"license-mit",
+			"license-ofl",
 			"contributors.md",
 			"contributing.md",
 			"changelog.md",
 			"code_of_conduct.md",
 			"issue_template.md",
 			"pull_request_template.md",
+			"feature_request.md",
+			"bug_report.md",
 			"arquitecture.md",
 			"frame-progress.md",
 			"frame.md",
+
 			"codeowners",
+
+			"tailwind.config.js",
+			"eslint.config.js",
+			"tsconfig.json",
+
+			"postcss.config.mjs",
+
 			"package.json",
 			"package-lock.json",
+			"yarn.lock",
+
+			"requirements.txt",
+			"sources.txt",
+			"top_level.txt",
+			"dependency_links.txt",
+			
 			".gitignore",
 			".gitattributes",
+			".gitkeep",
 			".dockerignore",
+			".eslintignore",
+			".eslintrc.cjs",
+			".editorconfig",
+			".npmrc",
+			".prettierignore",
+			".graphqlrc.ts",
+
 			"dockerfile",
-			"Makefile"
+			"Makefile",
+			"CMakeLists.txt"
 		];
 
 		for (const file of files) {
-			if (fileCount > 250) continue;
+			if (fileCount > 200) continue;
 			if (ignoreFiles.includes(file.name.toLowerCase())) {
 				console.log(`${color.pink}[fileCount:${fileCount++}] returning early, cuz its a file to ignore:${color.reset}`, file.name, file.html_url);
 				await new Promise(resolve => setTimeout(resolve, 1_000)); // 1sec delay until next file fetch
 				continue;
-			} else if (file.type === 'file' && !file.name.match(/\.(png|jpg|jpeg|gif|bin|webp|vad|asm|xml|c|h|cpp|hpp|yaml|yml|bat|sh|template|example|sample|toml|css|zip)$/i)) { // Skip binary/image files
+			} else if (file.type === 'file' && !file.name.match(/\.(png|jpg|jpeg|gif|ico|bin|webp|svg|avif|pdf|vad|asm|xml|pth|c|h|cpp|hpp|yaml|yml|bat|sh|template|example|sample|toml|css|zip|cmake|cuh|filters|dll|exe|cat|inf|rs|armbian|cfg|lockb|lock|ex|step|csproj|sln|prisma|sql|uf2|dart|xcconfig|xcscheme|plist|xcworkspacedata|entitlements|dm|icns|DS_Store|sum|iml|ignore|ini|vsidx|docx|xsd|resx|compressed|cache|nupkg|p7s|xcf|props|targets|xdt|psm1|psd1|ps1|pdb|altconfig|transform|csv)$/i)) { // Skip binary/image files
 				await checkFile(owner, repo, file.path, regex);
-			} else if (file.type === 'dir' && !file.name.match(/^(assets|node_modules|dist)$/i)) {
+			} else if (file.type === 'dir' && !file.name.match(/^(assets|node_modules|dist|images|img|imgs|art)$/i)) {
 				await fetchContents(owner, repo, regex, file.path); // Recurse into directories
 			}
 			await new Promise(resolve => setTimeout(resolve, 1_000)); // 1sec delay until next file fetch
@@ -333,7 +362,7 @@ async function fetchRecentRepositories() {
 					reposJSON.ignoreRepos = [...reposJSON.ignoreRepos, { repoOwner: org, repoName: repoName, createdAt: repo.created_at }];
 					await fs.writeFile(filePath, JSON.stringify(reposJSON, null, "\t"));
 				}
-				console.log(`${color.yellow}[repoCount:${repoCount}] Waiting 10sec until next repo fetch${color.reset}`);
+				console.log(`${color.yellow}[page:${page}|repoCount:${repoCount}/${page*100}] Waiting 10sec until next repo fetch${color.reset}`);
 				await new Promise(resolve => setTimeout(resolve, 10_000)); // 10sec delay until next fetchs
 				repoCount++;
 				fileCount = 1;
