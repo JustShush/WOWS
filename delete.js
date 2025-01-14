@@ -2,7 +2,7 @@ const axios = require('axios');
 
 // Array of webhook URLs to delete
 const webhookUrls = [
-	"https://discord.com/api/webhooks/1234567890/your-webhook-token",
+	//"https://discord.com/api/webhooks/1326428751604613130/jp7zePMqBvElpjbw2Lp0gyQjSRy1w4RUZJ2ZSuDURSQ1ish0UxnQ17d6EEsi1uk84Hre?wait=1&thread_id=1321874667358781531"
 	// Add more webhook URLs here
 ];
 
