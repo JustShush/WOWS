@@ -136,10 +136,97 @@ async function githubSearch() {
 						}
 					});
 
+					const tokensPreJson = await fs.readFile('tokens.json', 'utf8');
+					const tokensJson = JSON.parse(tokensPreJson);
+
 					const fileContent = Buffer.from(fileRes.data.content, 'base64').toString('utf-8');
 					const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
 
 					const regex = /aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv[A-Za-z0-9+/=]*/g;
+
+					const gitUserRegex = /https:\/\/raw\.githubusercontent\.com\/[A-Za-z0-9+=\/%()_-]+(?<!\))/gm;
+					const gitUserMatches = fileContent.match(gitUserRegex);
+					if (gitUserMatches) {
+						for (link of gitUserMatches) {
+							try {
+								// makes the request to get the data from the link
+								const res = await axios.get(link);
+								// checks for base of webhook url encoded in base64
+								const matchesBase64 = res.data.match(regex);
+								if (matchesBase64) {
+									for (base of matchesBase64) {
+										const decoded = Buffer.from(base, 'base64').toString('utf-8');
+										const matching = decoded.match(webhookRegex);
+										if (matching) {
+											matching.forEach((wh) => {
+												if (!isValidWebhook(wh)) return invalidCount++;
+												if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
+													console.log(`Already tested link: ${wh}`);
+													return;
+												} else {
+													console.log(`Found webhook in file: ${item.html_url}`);
+													i++;
+													console.log(`[${i}] Webhook: ${wh}`);
+													const data = {
+														path: item.path,
+														name: item.name,
+														html_url: item.html_url,
+														webhook: wh
+													};
+													whArray.push(data);
+												}
+											})
+										}
+									}
+								}
+								// checks for possible discord bot tokens (almost impossible cuz github and discord notify the user first)
+								const tokens = res.data.match(/[a-zA-Z0-9_\-]{24}\.[a-zA-Z0-9_\-]{6}\.[a-zA-Z0-9_\-]{27}/g);
+								if (tokens) {
+									tokens.forEach((t) => {
+										if (tokensJson.invalid.includes(t) || tokensJson.valid.includes(t)) {
+											console.log(`Already tested TOKEN or its already in the valid array: ${t}`);
+											return;
+										} else {
+											tokensJson.valid = [...tokensJson.valid, t];
+											console.log(t);
+										}
+									});
+									await fs.writeFile('tokens.json', JSON.stringify(tokensJson, null, '\t'));
+								}
+								// normal check for webhooks after the link has been read
+								const finds = res.data.match(webhookRegex);
+								if (finds) {
+									finds.forEach((wh) => {
+										if (!isValidWebhook(wh)) return invalidCount++;
+										if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
+											console.log(`Already tested link: ${wh}`);
+											return;
+										} else {
+											console.log(`Found webhook in file: ${item.html_url}`);
+											i++;
+											console.log(`[${i}] Webhook: ${wh}`);
+											matches.push({
+												path: item.path,
+												name: item.name,
+												html_url: item.html_url,
+												webhook: wh,
+												createdAt: item.created_at
+											});
+										}
+									})
+									console.log(`${color.green}[repoCount:${repoCount}/file:${fileCount}] Match found in file:${color.reset} ${filePath} | ${response.data.html_url}`);
+									wasFound = true;
+									console.log(`Invalid links found: ${invalidCount}`);
+								}
+								// idealy i would save the links that didnt find anything but ya, too much work <3
+							} catch (err) {
+								if (err.status == 404) {}
+								else console.log(`Problem when trying to fetch: ${link}:`, err.response?.data || err.message);
+								continue;
+							}
+						}
+					}
+
 					const matchesBase64 = fileContent.match(regex);
 					if (matchesBase64) {
 						for (base of matchesBase64) {
@@ -167,9 +254,6 @@ async function githubSearch() {
 							}
 						}
 					}
-
-					const tokensPreJson = await fs.readFile('tokens.json', 'utf8');
-					const tokensJson = JSON.parse(tokensPreJson);
 
 					const tokens = fileContent.match(/[a-zA-Z0-9_\-]{24}\.[a-zA-Z0-9_\-]{6}\.[a-zA-Z0-9_\-]{27}/g);
 					if (tokens) {
@@ -242,7 +326,7 @@ async function githubSearch() {
 		} catch (err) {
 			if (err.response.status == 422) {
 				console.error(`ERROR: Cannot access beyond the first 1000 results, or the endpoint has been spammed. when trying to fetch page: ${page}`, err.response.statusText)
-				console.log(`Searched for: |${query}| with Best Match: ${bestMatch}`);
+				console.log(`${color.green}Searched for: |${query}| with Best Match: ${bestMatch}${color.reset}`);
 			}
 			else if (err.response)
 				console.error(`Error ${err.response.status} on page ${page}: ${err.response.statusText}`);
