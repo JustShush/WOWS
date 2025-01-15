@@ -5,7 +5,7 @@ const fs = require('fs').promises;
 // make the search in code but with pagination
 
 // what you want to be searched
-const query = "discord bot token";
+const query = "https://discord.com/api/webhooks/";
 
 // to fetch for best match or recently updated
 // false to recently updated | true for best match
@@ -240,8 +240,10 @@ async function githubSearch() {
 			await new Promise(resolve => setTimeout(resolve, 10_000));
 			page++;
 		} catch (err) {
-			if (err.response.status == 422)
+			if (err.response.status == 422) {
 				console.error(`ERROR: Cannot access beyond the first 1000 results, or the endpoint has been spammed. when trying to fetch page: ${page}`, err.response.statusText)
+				console.log(`Searched for: |${query}| with Best Match: ${bestMatch}`);
+			}
 			else if (err.response)
 				console.error(`Error ${err.response.status} on page ${page}: ${err.response.statusText}`);
 			else
