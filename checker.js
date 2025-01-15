@@ -53,6 +53,7 @@ async function validateAndUpdateWebhooks(filePath) {
 				continue;
 			} else {
 				const isValid = await isWebhookValid(webhook);
+				await new Promise(resolve => setTimeout(resolve, 500));
 				if (isValid) {
 					validWebhooks.push(webhook);
 				} else {
