@@ -83,10 +83,13 @@ async function retryRequest(requestFunc, retries = 3) {
 		try {
 			return await requestFunc();
 		} catch (error) {
-			if (attempt < retries) {
+			if (error.status == 404 && error.data.message == 'This repository is empty.') {
+				console.log(`${color.purple} ${error.data.message}${color.reset}`);
+				await new Promise(resolve => setTimeout(resolve, 2_000));
+			} else if (attempt < retries) {
 				console.log(`${color.purple}Retrying... (${attempt}/${retries})${color.reset}`);
-				await new Promise(resolve => setTimeout(resolve, 10_000));
 			} else {
+				await new Promise(resolve => setTimeout(resolve, 10_000));
 				throw error;
 			}
 		}
@@ -128,10 +131,14 @@ async function fetchContents(owner, repo, regex, path = '') {
 			"frame.md",
 
 			"codeowners",
+			"gradlew",
 
 			"tailwind.config.js",
 			"eslint.config.js",
+			".eslintrc.json",
 			"tsconfig.json",
+			"tsconfig.node.json",
+			"vite.config.ts",
 
 			"postcss.config.mjs",
 
@@ -147,13 +154,18 @@ async function fetchContents(owner, repo, regex, path = '') {
 			".gitignore",
 			".gitattributes",
 			".gitkeep",
+			".gitconfig",
 			".dockerignore",
 			".eslintignore",
 			".eslintrc.cjs",
 			".editorconfig",
 			".npmrc",
 			".prettierignore",
+			".prettierrc",
 			".graphqlrc.ts",
+			".metadata",
+			".swcrc",
+			".helmignore",
 
 			"dockerfile",
 			"Makefile",
@@ -164,11 +176,11 @@ async function fetchContents(owner, repo, regex, path = '') {
 			if (fileCount > 200) continue;
 			if (ignoreFiles.includes(file.name.toLowerCase())) {
 				console.log(`${color.pink}[fileCount:${fileCount++}] returning early, cuz its a file to ignore:${color.reset}`, file.name, file.html_url);
-				await new Promise(resolve => setTimeout(resolve, 1_000)); // 1sec delay until next file fetch
+				await new Promise(resolve => setTimeout(resolve, 800)); // 1sec delay until next file fetch
 				continue;
-			} else if (file.type === 'file' && !file.name.match(/\.(png|jpg|jpeg|gif|ico|bin|webp|svg|avif|pdf|vad|asm|xml|pth|c|h|cpp|hpp|yaml|yml|bat|sh|template|example|sample|toml|css|zip|cmake|cuh|filters|dll|exe|cat|inf|rs|armbian|cfg|lockb|lock|ex|step|csproj|sln|prisma|sql|uf2|dart|xcconfig|xcscheme|plist|xcworkspacedata|entitlements|dm|icns|DS_Store|sum|iml|ignore|ini|vsidx|docx|xsd|resx|compressed|cache|nupkg|p7s|xcf|props|targets|xdt|psm1|psd1|ps1|pdb|altconfig|transform|csv)$/i)) { // Skip binary/image files
+			} else if (file.type === 'file' && !file.name.match(/\.(png|jpg|jpeg|gif|ico|bin|webp|svg|avif|pdf|vad|asm|xml|pth|c|h|cpp|hpp|yaml|yml|bat|sh|template|example|sample|toml|css|zip|cmake|cuh|filters|dll|exe|cat|inf|rs|armbian|cfg|lockb|lock|ex|step|csproj|sln|prisma|sql|uf2|dart|xcconfig|xcscheme|xcsettings|plist|xcworkspacedata|entitlements|dm|icns|DS_Store|sum|iml|ignore|ini|vsidx|docx|xsd|resx|compressed|cache|nupkg|p7s|xcf|prop|props|targets|xdt|psm1|psd1|ps1|pdb|altconfig|transform|csv|vcxproj|rc|ipynb|seco|frag|vert|lib|inl|o|s|d|lisp|spec|ui|kts|properties|kt|jsx|pfx|gradle|pro|java|jar|map|php|gql|asset|http|bp|mk|patch|te|pyc|mod|storyboard|cc|swift|pbxproj|xib|manifest|flaxproj|class|cabal|htaccess|apk|typed|go|less|woff|eot|scss|mp4|mp3|pbix|xlsx|tpl|fix|crt|twbx)$/i)) { // Skip binary/image files
 				await checkFile(owner, repo, file.path, regex);
-			} else if (file.type === 'dir' && !file.name.match(/^(assets|node_modules|dist|images|img|imgs|art)$/i)) {
+			} else if (file.type === 'dir' && !file.name.toLowerCase().match(/^(assets|node_modules|dist|images|img|imgs|art|__pycache__|cache|models|templates|.obsidian|.vscode|inc|lib|libs|libraries|routes|tests|api|pages|components|ui|docs|legacy|fonts|manager|controller|pkg|drivers|php|ios|android|macos)$/i)) {
 				await fetchContents(owner, repo, regex, file.path); // Recurse into directories
 			}
 			await new Promise(resolve => setTimeout(resolve, 1_000)); // 1sec delay until next file fetch
@@ -394,8 +406,10 @@ async function fetchRecentRepositories() {
 				console.error(`${color.red}Got 403 Forbidden (rate limit)${color.reset}`, err.message);
 				console.log('Early matches:', matches);
 				process.exit();
-			} else if (err.response?.status == 422)
+			} else if (err.response?.status == 422) {
 				console.error(`ERROR: Cannot access beyond the first 1000 results, or the endpoint has been spammed. when trying to fetch page: ${page}`, err.response.statusText)
+				console.log('Matches:', matches);
+			}
 			else if (err.response)
 				console.error(`Error ${err.response.status} on page ${page}: ${err.response.statusText}`);
 			else {
