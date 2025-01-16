@@ -7,6 +7,7 @@ console.time("RunTime");
 
 let data = {
 	username: "!SAFETY!",
+	avatar_url: "https://github.com/JustShush/WOWS/blob/main/imgs/whSafety.jpg?raw=true",
 	content: "# **:warning: Warning: Your Discord webhook has been leaked!**\n\nYour webhook is now exposed and can be used by unauthorized individuals to spam or harm your server. We have found this webhook online that can be intercepted by anyone! Luckily we are white hats and we wont cause any harm. Please Delete the compromised webhook immediately and create a new one to secure your server. Keep webhook URLs private and share them only with trusted individuals or systems. For more information, visit discord.gg/3jRJCApUHw @everyone\nwe are going to delete your webhook now for your safety."
 }
 
