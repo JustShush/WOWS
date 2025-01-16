@@ -2,3 +2,4 @@ package-lock.json
 discord_webhooks*.json
 node_modules
 config.json
+tokens.json
