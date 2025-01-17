@@ -80,6 +80,8 @@ async function main() {
 	// Update the JSON structure
 	webhooksJson.hooks = [...webhooksJson.hooks, ...whArray];
 
+	webhooksJson.hooks = [...new Set(webhooksJson.hooks)];
+
 	// Write the updated JSON back to the file
 	await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
 }
