@@ -50,26 +50,27 @@ async function validateAndUpdateWebhooks(filePath) {
 		for (webhook of allWebhooks) {
 			if (webhooksJson.removed.includes(webhook)) {
 				console.log(`Already tested link: ${webhook}`);
-				return;
+				continue;
 			} else {
 				const isValid = await isWebhookValid(webhook);
 				//console.log(`Checking: ${webhook}`);
-				await new Promise(resolve => setImmediate(() => setTimeout(resolve, 500)));
 				if (isValid) {
 					validWebhooks.push(webhook);
 				} else {
+					console.log(`${webhook} invalid`);
 					invalidWebhooks.push(webhook);
 				}
+				await new Promise(resolve => setTimeout(resolve, 500));
 			}
 		}
 
 		// Append invalid webhooks to the existing removed array
 		const existingRemoved = Array.isArray(webhooksJson.removed) ? webhooksJson.removed : [];
-		const uniqueRemoved = [...new Set([...existingRemoved, ...invalidWebhooks])];
+		console.log(invalidWebhooks);
 
 		// Update the JSON structure
 		webhooksJson.hooks = [...new Set(validWebhooks)]; // Remaining valid webhooks go to `hooks`
-		webhooksJson.removed = uniqueRemoved; // Store all unique invalid webhooks in `removed`
+		webhooksJson.removed = [...new Set([...existingRemoved, ...invalidWebhooks])]; // Store all unique invalid webhooks in `removed`
 
 		// Write the updated JSON back to the file
 		await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
