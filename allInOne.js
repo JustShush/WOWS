@@ -127,6 +127,12 @@ const deleteWebhook = async (url) => {
 		await axios.delete(url);
 		console.log(`Webhook deleted successfully: ${url}`);
 	} catch (error) {
+		if (error.status == 429) {
+			console.log(`${error.response.data.message}`, error.response.data.retry_after);
+			await new Promise((resolve) => setTimeout(resolve, (error.response.data.retry_after * 1_000) + 500));
+			deleteWebhook(url);
+			return;
+		}
 		if (error.response) {
 			console.error(`Failed to delete webhook: ${url}`);
 			console.error(`Status: ${error.response.status}`);
@@ -142,7 +148,7 @@ const deleteWebhooks = async () => {
 	for (const url of toBeDeleted) {
 		console.log(url);
 		await deleteWebhook(url);
-		await new Promise((resolve) => setTimeout(resolve, 1_000));
+		await new Promise((resolve) => setTimeout(resolve, 500));
 	}
 };
 
