@@ -142,6 +142,7 @@ const deleteWebhooks = async () => {
 	for (const url of toBeDeleted) {
 		console.log(url);
 		await deleteWebhook(url);
+		await new Promise((resolve) => setTimeout(resolve, 1_000));
 	}
 };
 
