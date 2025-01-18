@@ -47,13 +47,14 @@ async function validateAndUpdateWebhooks(filePath) {
 		const invalidWebhooks = [];
 
 		// Validate all webhooks
-		for (const webhook of allWebhooks) {
+		for (webhook of allWebhooks) {
 			if (webhooksJson.removed.includes(webhook)) {
 				console.log(`Already tested link: ${webhook}`);
-				continue;
+				return;
 			} else {
 				const isValid = await isWebhookValid(webhook);
-				await new Promise(resolve => setTimeout(resolve, 500));
+				//console.log(`Checking: ${webhook}`);
+				await new Promise(resolve => setImmediate(() => setTimeout(resolve, 500)));
 				if (isValid) {
 					validWebhooks.push(webhook);
 				} else {
