@@ -7,7 +7,7 @@ console.time("RunTime");
 
 let data = {
 	username: "!SAFETY!",
-	content: "# **:warning: Warning: Your Discord webhook has been leaked!**\n\n## Your webhook was exposed online and can be used by unauthorized individuals to spam or harm your server.\nWe have found this webhook online that can be intercepted by anyone! Luckily we are white hats and we wont cause any harm. **If you don't delete the compromised webhook in the next minutes we will delete it for your safety**. Keep webhook URLs private and share them only with trusted individuals or systems. For more information, visit discord.gg/xgYU5WDe",
+	content: "@everyone \n# **:warning: Warning: Your Discord webhook has been leaked!**\n\n## Your webhook was exposed online and can be used by unauthorized individuals to spam or harm your server.\nWe have found this webhook online that can be intercepted by anyone! Luckily we are white hats and we wont cause any harm. **If you don't delete the compromised webhook in the next minutes we will delete it for your safety**. Keep webhook URLs private and share them only with trusted individuals or systems. For more information, visit discord.gg/3jRJCApUHw",
 	tts: true
 }
 
@@ -50,7 +50,7 @@ const updateJsonRemoved = (urlsToAdd) => {
 		urlsToAdd.forEach(url => {
 			if (!json.removed.includes(url)) {
 				json.removed.push(url);
-				console.log(`Added: ${url}`);
+				//console.log(`Added: ${url}`);
 			} else {
 				console.log(`URL already checked INVALID!: ${url}`);
 			}
@@ -93,6 +93,7 @@ function removeDuplicates(webhookArray) {
 	return Array.from(new Set(webhookArray));
 }
 
+let i = 1;
 async function sendToAllWebhoks(data) {
 	const hooks = require('./webhooks.json');
 	let toRm = [];
@@ -104,7 +105,7 @@ async function sendToAllWebhoks(data) {
 			hooks.hooks = removeDuplicates(hooks.hooks);
 			try {
 				await axios.post(h, data)
-				console.log('Message sent successfully!');
+				console.log(`[${i++}] Message sent successfully!`);
 			} catch (err) {
 				console.error('Error sending message:', err.response?.data || err.message, h);
 				toRm.push(h);
