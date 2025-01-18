@@ -28,6 +28,9 @@ const BASES = [
 const LANGS = [
 	"language:Javascript",
 	"language:Lua",
+	"language:Python",
+	"language:HTML",
+	"file:*.txt",
 ];
 
 const OTHER = [
@@ -35,7 +38,8 @@ const OTHER = [
 	"stealer",
 	"channel",
 	"roblox",
-	"bot"
+	"bot",
+	"account"
 ];
 
 const color = {
@@ -64,7 +68,7 @@ async function getQuery(BasesI, LangsI, OtherI) {
 				console.log(`${color.blue}${BASES[BasesI]} ${LANGS[LangsI]} ${OTHER[OtherI]}${color.reset}`);
 				await githubSearch(`${BASES[BasesI]} ${LANGS[LangsI]} ${OTHER[OtherI]}`);
 				console.log(`${color.orange}10sec Wait until next query fetch${color.reset}`);
-				await new Promise(resolve => setTimeout(resolve, 500));
+				await new Promise(resolve => setTimeout(resolve, 10_000));
 				OtherI++;
 			}
 			LangsI++;
