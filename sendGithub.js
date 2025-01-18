@@ -43,8 +43,12 @@ async function main() {
 			i++;
 			console.log(`[${i}] Webhook warning message sent successfully!`);
 		} catch (err) {
-			console.error('Error sending message:', err.response?.data || err.message, webhook.webhook);
-			toRm.push(webhook.webhook);
+			if (err.response.data.code == 220001)
+				console.log(`This is a thread webhook, it must have a thread_name or thread_id | ${webhook.webhook}`);
+			else {
+				console.error('Error sending message:', err.response?.data || err.message, webhook.webhook);
+				toRm.push(webhook.webhook);
+			}
 		}
 	}
 	whJson.gwh = whJson.gwh.filter(wh => !toRm.includes(wh.webhook));
