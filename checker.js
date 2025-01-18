@@ -66,7 +66,6 @@ async function validateAndUpdateWebhooks(filePath) {
 
 		// Append invalid webhooks to the existing removed array
 		const existingRemoved = Array.isArray(webhooksJson.removed) ? webhooksJson.removed : [];
-		console.log(invalidWebhooks);
 
 		// Update the JSON structure
 		webhooksJson.hooks = [...new Set(validWebhooks)]; // Remaining valid webhooks go to `hooks`
