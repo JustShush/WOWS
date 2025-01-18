@@ -5,7 +5,7 @@ const fs = require('fs').promises;
 // make the search in code but with pagination
 
 // what you want to be searched
-const query = "https://discord.com/api/webhooks/ roblox";
+const query = "https://discordapp.com/api/webhooks/ language:Lua channel";
 
 // to fetch for best match or recently updated
 // false to recently updated | true for best match
@@ -42,6 +42,7 @@ var whArray = [];
 async function whChecker(webhookUrl, retries = 4) {
 	try {
 		const response = await axios.get(webhookUrl);
+		await new Promise(resolve => setTimeout(resolve, 500));
 		return response.status === 200;
 	} catch (err) {
 		if (retries > 0 && err.response?.status === 429) { // Too many requests
@@ -89,21 +90,53 @@ function isValidWebhook(url) {
 	}
 }
 
-function removeDuplicates(array) {
-	// Use a Map to store unique objects by their webhook
-	const uniqueObjects = new Map();
-	array.forEach((obj) => {
-		if (!uniqueObjects.has(obj.webhook)) {
-			uniqueObjects.set(obj.webhook, obj);
+function removeDuplicates(data) {
+	// Create a Set to track unique webhooks
+	const seenWebhooks = new Set();
+
+	// Filter the array to include only unique webhooks
+	return data.filter(item => {
+		if (seenWebhooks.has(item.webhook)) {
+			return false; // Exclude if the webhook is already seen
+		} else {
+			seenWebhooks.add(item.webhook); // Mark this webhook as seen
+			return true; // Include the item
 		}
 	});
-	return Array.from(uniqueObjects.values());
 }
 
 async function getLinksFromPastebin(url, item, whsJson, tokensJson) {
 	try {
 		const response = await axios.get(url);
 		const content = response.data;
+		// checks for base of webhook url encoded in base64
+		const matchesBase64 = content.match(regex);
+		if (matchesBase64) {
+			for (base of matchesBase64) {
+				const decoded = Buffer.from(base, 'base64').toString('utf-8');
+				const matching = decoded.match(webhookRegex);
+				if (matching) {
+					matching.forEach((wh) => {
+						if (!isValidWebhook(wh)) return invalidCount++;
+						if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
+							//console.log(`Already tested link: ${wh}`);
+							return;
+						} else {
+							console.log(`Found webhook in file: ${item.html_url}`);
+							i++;
+							console.log(`[${i}] Webhook: ${wh}`);
+							const data = {
+								path: item.path,
+								name: item.name,
+								html_url: item.html_url,
+								webhook: wh
+							};
+							whArray.push(data);
+						}
+					})
+				}
+			}
+		}
 		const links = content.match(PASTEBIN_REGEX) || content.match(GITHUB_USER_REGEX) || [];
 		// checks for possible discord bot tokens (almost impossible cuz github and discord notify the user first)
 		const tokens = content.match(/[a-zA-Z0-9_\-]{24}\.[a-zA-Z0-9_\-]{6}\.[a-zA-Z0-9_\-]{27}/g);
@@ -158,16 +191,23 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 			for (const link of linksToCheck) {
 				if (!visited.has(link)) {
 					visited.add(link);
-					//console.log(`Visiting: ${link}`);
 					const ignoreLinks = [
 						"https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/version",
 						"https://raw.githubusercontent.com/shlexware/domainx/main/latest",
 						"https://raw.githubusercontent.com/23Asmo/evolutionfixes/main/config",
 						"https://raw.githubusercontent.com/Blank-c/Blank-Grabber/main/Blank%20Grabber/Extras/hash",
-
-						"https://pastebin.com/search"
+						"https://raw.githubusercontent.com/rodcordeiro/bot_beltis/master/version",
+						"https://raw.githubusercontent.com/smashie420/Epic-Games-Today-Free-Day/master/version",
+						"https://raw.githubusercontent.com/Birkegud/TerminatorAC/main/Source/version",
+						"https://raw.githubusercontent.com/xariesnull/fivem-secured/main/version",
+						"https://raw.githubusercontent.com/AardPlugins/Aardwolf-Nulan-Mobs/refs/heads/main/VERSION",
+						"https://raw.githubusercontent.com/Yappering/api/main/v1/profiles-plus",
+						
+						"https://pastebin.com/search",
+						"https://pastebin.com/raw"
 					]
 					if (ignoreLinks.includes(link)) continue;
+					console.log(`Visiting: ${link}`);
 
 					const { links: newLinks } = await getLinksFromPastebin(link, item, whsJson, tokensJson);
 					await recursiveLinkChecker(newLinks, item, whsJson, tokensJson);
@@ -182,13 +222,14 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 	}
 }
 
-async function githubSearch() {
+async function githubSearch(QUERY) {
 
 	let page = 1;
 	while (true) {
 		try {
 			console.log(`Fetching page ${page}...`);
-			const url = `https://api.github.com/search/code?q=${query}&per_page=100${bestMatch ? "" : "&sort=updated"}&order=desc${page >= 1 ? `&page=${page}` : ""}`;
+			let url = `https://api.github.com/search/code?q=${encodeURIComponent(query)}&per_page=100${bestMatch ? "" : "&sort=updated"}&order=desc${page >= 1 ? `&page=${page}` : ""}`;
+			if (QUERY) url = `https://api.github.com/search/code?q=${encodeURIComponent(QUERY)}&per_page=100${bestMatch ? "" : "&sort=updated"}&order=desc${page >= 1 ? `&page=${page}` : ""}`;
 
 			const res = await axios.get(url, {
 				headers: {
@@ -201,6 +242,7 @@ async function githubSearch() {
 			// If no items are found, exit early
 			if (!items || items.length === 0) {
 				console.log("No results found.", res.data);
+				console.log(`${color.green}Searched for: |${query}| with Best Match: ${bestMatch}${color.reset}`);
 				return;
 			}
 
@@ -233,82 +275,6 @@ async function githubSearch() {
 					const gitUserMatches = fileContent.match(gitUserRegex);
 					if (gitUserMatches) {
 						readFileAndExtractLinks(gitUserMatches, item, whsJson, tokensJson);
-						for (link of gitUserMatches) {
-							try {
-								// makes the request to get the data from the link
-								const res = await axios.get(link);
-								// checks for base of webhook url encoded in base64
-								const matchesBase64 = res.data.match(regex);
-								if (matchesBase64) {
-									for (base of matchesBase64) {
-										const decoded = Buffer.from(base, 'base64').toString('utf-8');
-										const matching = decoded.match(webhookRegex);
-										if (matching) {
-											matching.forEach((wh) => {
-												if (!isValidWebhook(wh)) return invalidCount++;
-												if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
-													//console.log(`Already tested link: ${wh}`);
-													return;
-												} else {
-													console.log(`Found webhook in file: ${item.html_url}`);
-													i++;
-													console.log(`[${i}] Webhook: ${wh}`);
-													const data = {
-														path: item.path,
-														name: item.name,
-														html_url: item.html_url,
-														webhook: wh
-													};
-													whArray.push(data);
-												}
-											})
-										}
-									}
-								}
-								// checks for possible discord bot tokens (almost impossible cuz github and discord notify the user first)
-								const tokens = res.data.match(/[a-zA-Z0-9_\-]{24}\.[a-zA-Z0-9_\-]{6}\.[a-zA-Z0-9_\-]{27}/g);
-								if (tokens) {
-									tokens.forEach((t) => {
-										if (tokensJson.invalid.includes(t) || tokensJson.valid.includes(t)) {
-											console.log(`Already tested TOKEN or its already in the valid array: ${t}`);
-											return;
-										} else {
-											tokensJson.valid = [...tokensJson.valid, t];
-											console.log(t);
-										}
-									});
-									await fs.writeFile('tokens.json', JSON.stringify(tokensJson, null, '\t'));
-								}
-								// normal check for webhooks after the link has been read
-								const finds = res.data.match(webhookRegex);
-								if (finds) {
-									finds.forEach((wh) => {
-										if (!isValidWebhook(wh)) return invalidCount++;
-										if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
-											//console.log(`Already tested link: ${wh}`);
-											return;
-										} else {
-											console.log(`Found webhook in file: ${item.html_url}`);
-											i++;
-											console.log(`[${i}] Webhook: ${wh}`);
-											matches.push({
-												path: item.path,
-												name: item.name,
-												html_url: item.html_url,
-												webhook: wh,
-												createdAt: item.created_at
-											});
-										}
-									})
-									console.log(`Invalid links found: ${invalidCount}`);
-								}
-								// idealy i would save the links that didnt find anything but ya, too much work <3
-							} catch (err) {
-								if (err.status == 404 || err.status == 400) { }
-								else console.log(`Problem when trying to fetch: ${link}:`, err.response?.data || err.message);
-								continue;
-							}
-						}
 					}
 
 					const matchesBase64 = fileContent.match(regex);
@@ -343,7 +309,7 @@ async function githubSearch() {
 					if (tokens) {
 						tokens.forEach((t) => {
 							if (tokensJson.invalid.includes(t) || tokensJson.valid.includes(t)) {
-								console.log(`Already tested TOKEN or its already in the valid array: ${t}`);
+								//console.log(`Already tested TOKEN or its already in the valid array: ${t}`);
 								return;
 							} else {
 								tokensJson.valid = [...tokensJson.valid, t];
@@ -382,31 +348,51 @@ async function githubSearch() {
 
 			console.log(`Invalid links found: ${invalidCount}`);
 
+			const invalidWebhooks = [];
+			const validateWebhooks = async () => {
+				const validWebhooks = [];
+				for (const item of whArray) {
+					//console.log(`Checking ${item.webhook}`);
+					const isValid = await whChecker(item.webhook);
+					if (!isValid) {
+						//console.log(isValid, `${item.webhook}`);
+						invalidWebhooks.push(item.webhook);
+					} else {
+						validWebhooks.push(item); // Keep the valid item
+					}
+					await new Promise(resolve => setImmediate(() => setTimeout(resolve, 300)));
+				}
+				return validWebhooks; // Return only valid webhooks
+			};
+
+			whArray = removeDuplicates(whArray);
+
+			whArray = await validateWebhooks();
+
 			// Update the JSON structure
 			webhooksJson.gwh = [...webhooksJson.gwh, ...whArray];
 
 			webhooksJson.gwh = removeDuplicates(webhooksJson.gwh);
 
-			webhooksJson.gwh = (await Promise.all(webhooksJson.gwh.map(async (item) => {
-				const isValid = await whChecker(item.webhook);
-				await new Promise(resolve => setTimeout(resolve, 1_000));
-				return isValid ? item : null; // If valid, keep the item; otherwise, discard it
-			}))).filter(item => item !== null); // Filter out the `null` values
-
 			// Write the updated JSON back to the file
 			await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
 
 			// save into webhooks.json
-			whsJson.hooks = [...whsJson.hooks, ...whArray.map(obj => obj.webhook)];
+			whsJson.hooks = [...whsJson.hooks, ...webhooksJson.gwh.map(obj => obj.webhook)];
 
 			// remove duplicates
 			whsJson.hooks = [...new Set(whsJson.hooks)];
+
+			whsJson.removed = [...whsJson.removed, ...new Set(invalidWebhooks)];
+
+			whsJson.removed = [...new Set(whsJson.removed)];
 
 			// Write the updated JSON back to the file
 			await fs.writeFile("webhooks.json", JSON.stringify(whsJson, null, "\t"));
 			// Add delay between requests
 			console.log(`Waiting 10 sec to fetch the next page: ${page + 1}`);
 			await new Promise(resolve => setTimeout(resolve, 10_000));
+			whArray = [];
 			page++;
 		} catch (err) {
 			if (err.response.status == 422) {
