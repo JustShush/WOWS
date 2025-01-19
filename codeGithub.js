@@ -5,7 +5,7 @@ const fs = require('fs').promises;
 // make the search in code but with pagination
 
 // what you want to be searched
-const query = "https://discordapp.com/api/webhooks/ language:Lua channel";
+const query = "https://discord.com/api/webhooks/ language:C#";
 
 // to fetch for best match or recently updated
 // false to recently updated | true for best match
@@ -25,11 +25,12 @@ const color = {
 	reset: "\x1b[0m",
 };
 
-const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
+const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)(\?[^\s"'()]*)?/g;
 const regex = /aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv[A-Za-z0-9+/=]*/g;
 const gitUserRegex = /https:\/\/raw\.githubusercontent\.com\/[A-Za-z0-9+=\/%()_-]+(?<!\))/gm;
 
 const PASTEBIN_REGEX = /https?:\/\/pastebin\.com\/[a-zA-Z0-9]+/g;
+const PASTEBIN_RAW_REGEX = /https?:\/\/pastebin\.com\/raw\/[a-zA-Z0-9]+/g;
 const GITHUB_USER_REGEX = /https:\/\/raw\.githubusercontent\.com\/[A-Za-z0-9+=\/%()_-]+(?<!\))/gm;
 
 var whArray = [];
@@ -137,7 +138,7 @@ async function getLinksFromPastebin(url, item, whsJson, tokensJson) {
 				}
 			}
 		}
-		const links = content.match(PASTEBIN_REGEX) || content.match(GITHUB_USER_REGEX) || [];
+		const links = content.match(PASTEBIN_REGEX) || content.match(PASTEBIN_RAW_REGEX) || content.match(GITHUB_USER_REGEX) || [];
 		// checks for possible discord bot tokens (almost impossible cuz github and discord notify the user first)
 		const tokens = content.match(/[a-zA-Z0-9_\-]{24}\.[a-zA-Z0-9_\-]{6}\.[a-zA-Z0-9_\-]{27}/g);
 		if (tokens) {
@@ -202,7 +203,16 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 						"https://raw.githubusercontent.com/xariesnull/fivem-secured/main/version",
 						"https://raw.githubusercontent.com/AardPlugins/Aardwolf-Nulan-Mobs/refs/heads/main/VERSION",
 						"https://raw.githubusercontent.com/Yappering/api/main/v1/profiles-plus",
-						
+						"https://raw.githubusercontent.com/Mikasuru/InternalRaid/refs/heads/main/version", ,
+						"https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Signal",
+						"https://raw.githubusercontent.com/haritprince/revengex/main/ips-active-allinone",
+						"https://raw.githubusercontent.com/HeyGyt/idiote/main/main",
+						"https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager",
+						"https://raw.githubusercontent.com/evoincorp/lucideblox/master/src/modules/util/icons",
+						"https://raw.githubusercontent.com/laagginq/Evolution/main/akali",
+						"https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW",
+						"https://raw.githubusercontent.com/Aidez/emojiscopy/master/main",
+
 						"https://pastebin.com/search",
 						"https://pastebin.com/raw"
 					]
@@ -242,7 +252,7 @@ async function githubSearch(QUERY) {
 			// If no items are found, exit early
 			if (!items || items.length === 0) {
 				console.log("No results found.", res.data);
-				console.log(`${color.green}Searched for: |${query}| with Best Match: ${bestMatch}${color.reset}`);
+				console.log(`${color.green}Searched for: |${QUERY ? QUERY : query}| with Best Match: ${bestMatch}${color.reset}`);
 				return;
 			}
 
@@ -342,8 +352,17 @@ async function githubSearch(QUERY) {
 						})
 					}
 				} catch (fileErr) {
-					console.error(`Error fetching file content for ${item.html_url}:`, fileErr.response?.data || fileErr.message);
+					if (fileErr.status == 403) {
+						// forbidden, returns when im getting rate limited
+						console.log(`Forbidden, rate limit reached`);
+						console.log(whArray);
+						process.exit();
+					} else
+						console.error(`Error fetching file content for ${item.html_url}:`, fileErr.response?.data || fileErr.message);
 				}
+				// Add delay between requests
+				console.log(`Waiting 10 sec to fetch the next page: ${page + 1}`);
+				await new Promise(resolve => setTimeout(resolve, 10_000));
 			}
 
 			console.log(`Invalid links found: ${invalidCount}`);
@@ -389,17 +408,13 @@ async function githubSearch(QUERY) {
 
 			// Write the updated JSON back to the file
 			await fs.writeFile("webhooks.json", JSON.stringify(whsJson, null, "\t"));
-			// Add delay between requests
-			console.log(`Waiting 10 sec to fetch the next page: ${page + 1}`);
-			await new Promise(resolve => setTimeout(resolve, 10_000));
 			whArray = [];
 			page++;
 		} catch (err) {
 			if (err.response.status == 422) {
 				console.error(`ERROR: Cannot access beyond the first 1000 results, or the endpoint has been spammed. when trying to fetch page: ${page}`, err.response.statusText)
-				console.log(`${color.green}Searched for: |${query}| with Best Match: ${bestMatch}${color.reset}`);
-			}
-			else if (err.response)
+				console.log(`${color.green}Searched for: ${QUERY ? QUERY : query} | with Best Match: ${bestMatch}${color.reset}`);
+			} else if (err.response)
 				console.error(`Error ${err.response.status} on page ${page}: ${err.response.statusText}`);
 			else
 				console.error(`Error fetching page ${page}:`, err.message);
