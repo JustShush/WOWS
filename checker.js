@@ -57,7 +57,7 @@ async function validateAndUpdateWebhooks(filePath) {
 				if (isValid) {
 					validWebhooks.push(webhook);
 				} else {
-					console.log(`${webhook} invalid`);
+					//console.log(`${webhook} invalid`);
 					invalidWebhooks.push(webhook);
 				}
 				await new Promise(resolve => setTimeout(resolve, 500));
