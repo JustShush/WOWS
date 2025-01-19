@@ -97,6 +97,7 @@ function removeDuplicates(webhookArray) {
 var toBeDeleted = []
 async function sendToAllWebhoks(data) {
 	const hooks = require('./webhooks.json');
+	let j = 1;
 	let toRm = [];
 	for (const h of hooks.hooks) {
 		if (hooks.removed.includes(h)) {
@@ -106,7 +107,7 @@ async function sendToAllWebhoks(data) {
 			hooks.hooks = removeDuplicates(hooks.hooks);
 			try {
 				await axios.post(h, data)
-				console.log('Message sent successfully!');
+				console.log(`[${j++}] Warning message sent successfully!`);
 				toBeDeleted.push(`${h}`);
 			} catch (err) {
 				console.error('Error sending message:', err.response?.data || err.message, h);
@@ -120,12 +121,12 @@ async function sendToAllWebhoks(data) {
 	combineAndWriteJson(updatedHooks, updatedRemoved);
 }
 
-
+let i = 1;
 // Function to delete a webhook
 const deleteWebhook = async (url) => {
 	try {
 		await axios.delete(url);
-		console.log(`Webhook deleted successfully: ${url}`);
+		console.log(`[${i++}] Webhook deleted successfully: ${url}`);
 	} catch (error) {
 		if (error.status == 429) {
 			console.log(`${error.response.data.message}`, error.response.data.retry_after);
@@ -146,7 +147,7 @@ const deleteWebhook = async (url) => {
 // Iterate through the array of webhook URLs and delete them
 const deleteWebhooks = async () => {
 	for (const url of toBeDeleted) {
-		console.log(url);
+		//console.log(url);
 		await deleteWebhook(url);
 		await new Promise((resolve) => setTimeout(resolve, 500));
 	}
