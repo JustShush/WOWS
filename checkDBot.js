@@ -3,6 +3,18 @@ const { Client } = require('discord.js');
 
 const tokensFile = './tokens.json'; // Replace with your JSON file path
 
+const color = {
+	red: "\x1b[31m",
+	orange: "\x1b[38;5;202m",
+	yellow: "\x1b[33m",
+	green: "\x1b[32m",
+	blue: "\x1b[34m",
+	pink: "\x1b[38;5;213m",
+	torquise: "\x1b[38;5;45m",
+	purple: "\x1b[38;5;57m",
+	reset: "\x1b[0m",
+};
+
 let tokens = [];
 // Function to check if a token is valid
 const checkToken = async (token) => {
@@ -10,7 +22,7 @@ const checkToken = async (token) => {
 
 	try {
 		await client.login(token);
-		console.log(`Token is valid: ${token}`);
+		console.log(`${color.green}Token is valid:${color.reset} ${token}`);
 		client.destroy(); // Destroy the client after logging in
 		return true;
 	} catch (error) {
