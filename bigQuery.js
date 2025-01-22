@@ -16,30 +16,58 @@ const QUERIES = [
 	"https://discord.com/api/webhooks/"
 ];
 
+const NUMBER_OF_WEEKS = 0;
+
 const BASES = [
 	"https://discord.com/api/webhooks/",
-	"https://discordapp.com/api/webhooks/",
+	//"https://discordapp.com/api/webhooks/",
 	//"https://canary.discord.com/api/webhooks/",
 	//"https://canary.discordapp.com/api/webhooks/",
 	//"https://ptb.discord.com/api/webhooks/",
-	//"https://ptb.discordapp.com/api/webhooks/"
+	//"https://ptb.discordapp.com/api/webhooks/",
+	//"aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv",
+	//"aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3M=",
+	//"https://pastebin.com/raw/"
 ];
 
 const LANGS = [
-	"language:Javascript",
-	"language:Lua",
-	"language:Python",
-	"language:HTML",
-	"file:*.txt",
+	//"language:Javascript",
+	//"language:Lua",
+	//"language:Python",
+	//"language:HTML",
+	//"language:C#",
+	//"language:TypeScript",
+	//"language:PHP",
+	//"language:Go",
+	/* "filename:md",
+	"filename:env",
+	"filename:json",
+	"filename:.yaml",
+	"filename:.yml", */
+	//"path:*.ts",
+	//"filename:discord",
+	//"path:discord",
+	//"path:webhook",
+	//"filename:webhook",
+	"filename:script",
+	//"path:log",
+	//"path:index",
+	//" "
 ];
 
 const OTHER = [
-	"grabber",
-	"stealer",
-	"channel",
-	"roblox",
-	"bot",
-	"account"
+	//"grabber",
+	//"stealer",
+	//"gen",
+	//"token",
+	//"channel",
+	//"roblox",
+	//"bot",
+	//"account",
+	//"logger",
+	//"solara",
+	//"cookie",
+	" "
 ];
 
 const color = {
@@ -53,6 +81,31 @@ const color = {
 	purple: "\x1b[38;5;57m",
 	reset: "\x1b[0m",
 };
+
+function getGithubSearchQuery(weeks) {
+	if (typeof weeks !== "number" || weeks < 0) {
+		throw new Error("Input must be a non-negative number.");
+	}
+
+	const now = new Date();
+	const startOfWeek = new Date();
+	const endOfWeek = new Date();
+
+	// Calculate start of the week (weeks from now)
+	startOfWeek.setDate(now.getDate() - now.getDay() - (weeks * 7));
+	startOfWeek.setHours(0, 0, 0, 0);
+
+	// Calculate end of the week (1 week after the start of this week)
+	endOfWeek.setDate(startOfWeek.getDate() + 6);
+	endOfWeek.setHours(23, 59, 59, 999);
+
+	// Format dates to YYYY-MM-DD
+	const startDate = startOfWeek.toISOString().split("T")[0];
+	const endDate = endOfWeek.toISOString().split("T")[0];
+
+	// GitHub API query for repository creation dates
+	return `created:${startDate}..${endDate}`;
+}
 
 async function getQuery(BasesI, LangsI, OtherI) {
 
