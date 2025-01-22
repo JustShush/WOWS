@@ -38,6 +38,7 @@ const GITHUB_USER_REGEX = /https:\/\/raw\.githubusercontent\.com\/[A-Za-z0-9+=\/
 const TELEGRAM_TOKEN_REGEX = /^\d{9}:[A-Za-z0-9_-]{35}$/gm;
 
 var whArray = [];
+var visitedGitusercontentURLs = [];
 
 /**
  * Checks if a Discord webhook is valid.
@@ -114,29 +115,6 @@ async function getLinksFromPastebin(url, item, whsJson, tokensJson) {
 	try {
 		const response = await axios.get(url);
 		const content = response.data;
-		const lastPartMatches = content.match(WH_LAST_PART_REGEX);
-		if (lastPartMatches) {
-			lastPartMatches.forEach((lp) => {
-				console.log(item.html_url, BASE + lp);
-				if (!isValidWebhook(BASE + lp)) return invalidCount++;
-				if (whsJson.removed.includes(BASE + lp) || whsJson.hooks.includes(BASE + lp)) {
-					//console.log(`Already tested link: ${wh}`);
-					return;
-				} else {
-					console.log(`Found webhook in file: ${item.html_url}`);
-					i++;
-					console.log(`${color.green}[${i}] Webhook:${color.reset} ${BASE + lp}`);
-					const data = {
-						path: item.path,
-						name: item.name,
-						html_url: item.html_url,
-						webhook: BASE + lp
-					};
-					whArray.push(data);
-				}
-			})
-		}
-
 		// checks for base of webhook url encoded in base64
 		const matchesBase64 = content.match(regex);
 		if (matchesBase64) {
@@ -203,6 +181,29 @@ async function getLinksFromPastebin(url, item, whsJson, tokensJson) {
 				}
 			})
 		}
+		const lastPartMatches = content.match(WH_LAST_PART_REGEX);
+		if (lastPartMatches) {
+			lastPartMatches.forEach((lp) => {
+				console.log(item.html_url, BASE + lp);
+				if (!isValidWebhook(BASE + lp)) return invalidCount++;
+				if (whArray.includes(BASE + lp)) return;
+				if (whsJson.removed.includes(BASE + lp) || whsJson.hooks.includes(BASE + lp)) {
+					//console.log(`Already tested link: ${wh}`);
+					return;
+				} else {
+					console.log(`Found webhook in file: ${item.html_url}`);
+					i++;
+					console.log(`${color.green}[${i}] Webhook:${color.reset} ${BASE + lp}`);
+					const data = {
+						path: item.path,
+						name: item.name,
+						html_url: item.html_url,
+						webhook: BASE + lp
+					};
+					whArray.push(data);
+				}
+			})
+		}
 		return { content, links };
 	} catch (error) {
 		if (error.status == 404 || error.status == 400) { }
@@ -214,38 +215,38 @@ async function getLinksFromPastebin(url, item, whsJson, tokensJson) {
 async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 	try {
 		const visited = new Set();
+		const ignoreLinks = [
+			"https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/version",
+			"https://raw.githubusercontent.com/shlexware/domainx/main/latest",
+			"https://raw.githubusercontent.com/23Asmo/evolutionfixes/main/config",
+			"https://raw.githubusercontent.com/Blank-c/Blank-Grabber/main/Blank%20Grabber/Extras/hash",
+			"https://raw.githubusercontent.com/rodcordeiro/bot_beltis/master/version",
+			"https://raw.githubusercontent.com/smashie420/Epic-Games-Today-Free-Day/master/version",
+			"https://raw.githubusercontent.com/Birkegud/TerminatorAC/main/Source/version",
+			"https://raw.githubusercontent.com/xariesnull/fivem-secured/main/version",
+			"https://raw.githubusercontent.com/AardPlugins/Aardwolf-Nulan-Mobs/refs/heads/main/VERSION",
+			"https://raw.githubusercontent.com/Yappering/api/main/v1/profiles-plus",
+			"https://raw.githubusercontent.com/Mikasuru/InternalRaid/refs/heads/main/version", ,
+			"https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Signal",
+			"https://raw.githubusercontent.com/haritprince/revengex/main/ips-active-allinone",
+			"https://raw.githubusercontent.com/HeyGyt/idiote/main/main",
+			"https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager",
+			"https://raw.githubusercontent.com/evoincorp/lucideblox/master/src/modules/util/icons",
+			"https://raw.githubusercontent.com/laagginq/Evolution/main/akali",
+			"https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW",
+			"https://raw.githubusercontent.com/Aidez/emojiscopy/master/main",
+
+			"https://pastebin.com/search",
+			"https://pastebin.com/raw"
+		];
+		ignoreLinks.forEach((url) => visitedGitusercontentURLs.push(url));
 
 		async function recursiveLinkChecker(linksToCheck, item, whsJson, tokensJson) {
 			for (const link of linksToCheck) {
+				if (visitedGitusercontentURLs.includes(link)) continue;
 				if (!visited.has(link)) {
 					visited.add(link);
-					const ignoreLinks = [
-						"https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/version",
-						"https://raw.githubusercontent.com/shlexware/domainx/main/latest",
-						"https://raw.githubusercontent.com/23Asmo/evolutionfixes/main/config",
-						"https://raw.githubusercontent.com/Blank-c/Blank-Grabber/main/Blank%20Grabber/Extras/hash",
-						"https://raw.githubusercontent.com/rodcordeiro/bot_beltis/master/version",
-						"https://raw.githubusercontent.com/smashie420/Epic-Games-Today-Free-Day/master/version",
-						"https://raw.githubusercontent.com/Birkegud/TerminatorAC/main/Source/version",
-						"https://raw.githubusercontent.com/xariesnull/fivem-secured/main/version",
-						"https://raw.githubusercontent.com/AardPlugins/Aardwolf-Nulan-Mobs/refs/heads/main/VERSION",
-						"https://raw.githubusercontent.com/Yappering/api/main/v1/profiles-plus",
-						"https://raw.githubusercontent.com/Mikasuru/InternalRaid/refs/heads/main/version", ,
-						"https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Signal",
-						"https://raw.githubusercontent.com/haritprince/revengex/main/ips-active-allinone",
-						"https://raw.githubusercontent.com/HeyGyt/idiote/main/main",
-						"https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager",
-						"https://raw.githubusercontent.com/evoincorp/lucideblox/master/src/modules/util/icons",
-						"https://raw.githubusercontent.com/laagginq/Evolution/main/akali",
-						"https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW",
-						"https://raw.githubusercontent.com/Aidez/emojiscopy/master/main",
-
-						"https://pastebin.com/search",
-						"https://pastebin.com/raw"
-					]
-					if (ignoreLinks.includes(link)) continue;
 					console.log(`Visiting: ${link}`);
-
 					const { links: newLinks } = await getLinksFromPastebin(link, item, whsJson, tokensJson);
 					await recursiveLinkChecker(newLinks, item, whsJson, tokensJson);
 				}
