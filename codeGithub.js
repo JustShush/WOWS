@@ -25,13 +25,17 @@ const color = {
 	reset: "\x1b[0m",
 };
 
+const BASE = "https://discord.com/api/webhooks/";
 const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)(\?[^\s"'()]*)?/g;
 const regex = /aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv[A-Za-z0-9+/=]*/g;
+const WH_BASE_REGEX = /aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv/g;
+const WH_LAST_PART_REGEX = /[A-Za-z0-9]{16,}\/[A-Za-z0-9_\-]{68}/g;
 const gitUserRegex = /https:\/\/raw\.githubusercontent\.com\/[A-Za-z0-9+=\/%()_-]+(?<!\))/gm;
 
 const PASTEBIN_REGEX = /https?:\/\/pastebin\.com\/[a-zA-Z0-9]+/g;
 const PASTEBIN_RAW_REGEX = /https?:\/\/pastebin\.com\/raw\/[a-zA-Z0-9]+/g;
 const GITHUB_USER_REGEX = /https:\/\/raw\.githubusercontent\.com\/[A-Za-z0-9+=\/%()_-]+(?<!\))/gm;
+const TELEGRAM_TOKEN_REGEX = /^\d{9}:[A-Za-z0-9_-]{35}$/gm;
 
 var whArray = [];
 
@@ -110,6 +114,29 @@ async function getLinksFromPastebin(url, item, whsJson, tokensJson) {
 	try {
 		const response = await axios.get(url);
 		const content = response.data;
+		const lastPartMatches = content.match(WH_LAST_PART_REGEX);
+		if (lastPartMatches) {
+			lastPartMatches.forEach((lp) => {
+				console.log(item.html_url, BASE + lp);
+				if (!isValidWebhook(BASE + lp)) return invalidCount++;
+				if (whsJson.removed.includes(BASE + lp) || whsJson.hooks.includes(BASE + lp)) {
+					//console.log(`Already tested link: ${wh}`);
+					return;
+				} else {
+					console.log(`Found webhook in file: ${item.html_url}`);
+					i++;
+					console.log(`${color.green}[${i}] Webhook:${color.reset} ${BASE + lp}`);
+					const data = {
+						path: item.path,
+						name: item.name,
+						html_url: item.html_url,
+						webhook: BASE + lp
+					};
+					whArray.push(data);
+				}
+			})
+		}
+
 		// checks for base of webhook url encoded in base64
 		const matchesBase64 = content.match(regex);
 		if (matchesBase64) {
@@ -351,6 +378,29 @@ async function githubSearch(QUERY) {
 							}
 						})
 					}
+
+					// make it regex for just the base of the encoded link
+					// and then using another regex for the "id/token" of the webhook and add them together if there are
+					const lastPartMatches = fileContent.match(WH_LAST_PART_REGEX);
+					if (lastPartMatches) {
+						lastPartMatches.forEach((lp) => {
+							if (!isValidWebhook(BASE + lp)) return invalidCount++;
+							if (whArray.includes(BASE + lp)) return;
+							if (whsJson.removed.includes(BASE + lp) || whsJson.hooks.includes(BASE + lp)) return;
+							console.log(`Found webhook in file: ${item.html_url}`);
+							i++;
+							console.log(`[${i}] Webhook: ${BASE + lp}`);
+							const data = {
+								path: item.path,
+								name: item.name,
+								html_url: item.html_url,
+								webhook: BASE + lp
+							};
+							whArray.push(data);
+						})
+					}
+
+					await new Promise(resolve => setTimeout(resolve, 250)); // I think i can do 10 requests per minute
 				} catch (fileErr) {
 					if (fileErr.status == 403) {
 						// forbidden, returns when im getting rate limited
@@ -360,10 +410,7 @@ async function githubSearch(QUERY) {
 					} else
 						console.error(`Error fetching file content for ${item.html_url}:`, fileErr.response?.data || fileErr.message);
 				}
-				// Add delay between requests
-				console.log(`Waiting 10 sec to fetch the next page: ${page + 1}`);
-				await new Promise(resolve => setTimeout(resolve, 10_000));
-			}
+			};
 
 			console.log(`Invalid links found: ${invalidCount}`);
 
@@ -408,6 +455,9 @@ async function githubSearch(QUERY) {
 
 			// Write the updated JSON back to the file
 			await fs.writeFile("webhooks.json", JSON.stringify(whsJson, null, "\t"));
+			// Add delay between requests
+			console.log(`Waiting 10 sec to fetch the next page: ${page + 1}`);
+			await new Promise(resolve => setTimeout(resolve, 10_000));
 			whArray = [];
 			page++;
 		} catch (err) {
