@@ -235,6 +235,15 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 			"https://raw.githubusercontent.com/laagginq/Evolution/main/akali",
 			"https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW",
 			"https://raw.githubusercontent.com/Aidez/emojiscopy/master/main",
+			"https://github.com/dafinffx/quantumxz/blob/5e9e1bc14877ed6398a48603b0aa8ba115123173/script.js",
+			"https://github.com/joseminelli/Convite/blob/1e32c81085bd52a491869b236481b800f9ef3b33/script.js",
+			"https://github.com/kamin9/Log-in-page/blob/36658fc25f97bb4c7eaf6e60ac98a7697ddf2f74/script.js",
+			"https://github.com/catgirlshadows/lunarstore/blob/238d651a658ae197f6b3ee54c8d074e8249bd643/script.js",
+			"https://raw.githubusercontent.com/EliasAtto1/BeamedWare/main/BeamedWare2",
+			"https://raw.githubusercontent.com/NighterEpic/Faded-Grid/main/YesEpic",
+			"https://raw.githubusercontent.com/ImagineProUser/vortexdahood/main/vortex",
+			"https://raw.githubusercontent.com/1f0yt/community/main/Changer",
+			"https://raw.githubusercontent.com/Historia00012/HISTORIAHUB/main/BSS%20FREE",
 
 			"https://pastebin.com/search",
 			"https://pastebin.com/raw"
@@ -243,9 +252,10 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 
 		async function recursiveLinkChecker(linksToCheck, item, whsJson, tokensJson) {
 			for (const link of linksToCheck) {
-				if (visitedGitusercontentURLs.includes(link)) continue;
+				if (visitedGitusercontentURLs.includes(link)) { console.log(`Ignored: ${link}`); continue; }
 				if (!visited.has(link)) {
 					visited.add(link);
+					visitedGitusercontentURLs.push(link);
 					console.log(`Visiting: ${link}`);
 					const { links: newLinks } = await getLinksFromPastebin(link, item, whsJson, tokensJson);
 					await recursiveLinkChecker(newLinks, item, whsJson, tokensJson);
@@ -386,7 +396,7 @@ async function githubSearch(QUERY) {
 					if (lastPartMatches) {
 						lastPartMatches.forEach((lp) => {
 							if (!isValidWebhook(BASE + lp)) return invalidCount++;
-							if (whArray.includes(BASE + lp)) return;
+							if (whArray.includes(BASE + lp)) return console.log(`Already checked: ${BASE + lp}`);
 							if (whsJson.removed.includes(BASE + lp) || whsJson.hooks.includes(BASE + lp)) return;
 							console.log(`Found webhook in file: ${item.html_url}`);
 							i++;
@@ -441,6 +451,7 @@ async function githubSearch(QUERY) {
 
 			webhooksJson.gwh = removeDuplicates(webhooksJson.gwh);
 
+			console.log(`${color.purple}Writing to |${filePath}|${color.reset}`);
 			// Write the updated JSON back to the file
 			await fs.writeFile(filePath, JSON.stringify(webhooksJson, null, "\t"));
 
@@ -454,6 +465,7 @@ async function githubSearch(QUERY) {
 
 			whsJson.removed = [...new Set(whsJson.removed)];
 
+			console.log(`${color.purple}Writing to |webhooks.json|${color.reset}`);
 			// Write the updated JSON back to the file
 			await fs.writeFile("webhooks.json", JSON.stringify(whsJson, null, "\t"));
 			// Add delay between requests
