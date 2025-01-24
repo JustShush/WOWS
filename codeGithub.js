@@ -244,6 +244,28 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 			"https://raw.githubusercontent.com/ImagineProUser/vortexdahood/main/vortex",
 			"https://raw.githubusercontent.com/1f0yt/community/main/Changer",
 			"https://raw.githubusercontent.com/Historia00012/HISTORIAHUB/main/BSS%20FREE",
+			"https://raw.githubusercontent.com/ProjectpopCat/ywxoscripts/main/EatBlocksSim70",
+			"https://raw.githubusercontent.com/cool83birdcarfly02six/DrivingEmpireEvents/main/README",
+			"https://raw.githubusercontent.com/JackCSTM/eclipsex/main/script",
+			"https://raw.githubusercontent.com/OhhMyGehlee/CA2/main/Solara",
+			"https://raw.githubusercontent.com/fuckmath/shit/main/main",
+			"https://raw.githubusercontent.com/SlamminPig/rblxgames/main/Epic%20Minigames/EpicMinigamesGUI",
+			"https://raw.githubusercontent.com/FFJ1/Roblox-Exploits/main/scripts/Loader",
+			"https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard",
+			"https://raw.githubusercontent.com/xQuartyx/DonateMe/main/OldBf",
+			"https://raw.githubusercontent.com/EnterpriseExperience/MicUpSource/main/doMICUP",
+			"https://raw.githubusercontent.com/EnterpriseExperience/MicUpSource/refs/heads/main/retrieve_branch_version.lua",
+			"https://raw.githubusercontent.com/Mei2232/ZaqueHub/main/Zaque%20Hub",
+			"https://raw.githubusercontent.com/IrishBaker/scripts/main/decaying%20winter/Passive%20Heal",
+			"https://raw.githubusercontent.com/GamingScripter/scripts/main/TOH",
+			"https://raw.githubusercontent.com/Iliankytb/Iliankytb/main/SpeedrunTimer",
+			"https://raw.githubusercontent.com/acsun124/pluh-s-properties/main/v1-official",
+			"https://raw.githubusercontent.com/xuewuhen999/mybox/main/sj2",
+			"https://raw.githubusercontent.com/Ethanoj1/EclipseMM2/master/Script",
+			"https://raw.githubusercontent.com/KINGHUB01/BlackKing-obf/main/TheSB",
+			"https://raw.githubusercontent.com/AlznX/Roblox-Scripts/main/Psycho%20Hub",
+			"https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",
+			"https://raw.githubusercontent.com/Vortex194/main/main/oilwarfare",
 
 			"https://pastebin.com/search",
 			"https://pastebin.com/raw"
@@ -252,11 +274,11 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 
 		async function recursiveLinkChecker(linksToCheck, item, whsJson, tokensJson) {
 			for (const link of linksToCheck) {
-				if (visitedGitusercontentURLs.includes(link)) { console.log(`Ignored: ${link}`); continue; }
+				if (visitedGitusercontentURLs.includes(link)) { console.log(`${color.torquise}Ignored:${color.reset} ${link}`); continue; }
 				if (!visited.has(link)) {
 					visited.add(link);
 					visitedGitusercontentURLs.push(link);
-					console.log(`Visiting: ${link}`);
+					console.log(`${color.orange}Visiting:${color.reset} ${link}`);
 					const { links: newLinks } = await getLinksFromPastebin(link, item, whsJson, tokensJson);
 					await recursiveLinkChecker(newLinks, item, whsJson, tokensJson);
 				}
