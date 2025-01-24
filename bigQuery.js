@@ -19,15 +19,17 @@ const QUERIES = [
 const NUMBER_OF_WEEKS = 0;
 
 const BASES = [
-	"https://discord.com/api/webhooks/",
+	//"https://discord.com/api/webhooks/",
 	//"https://discordapp.com/api/webhooks/",
+	//"https://raw.githubusercontent.com",
 	//"https://canary.discord.com/api/webhooks/",
 	//"https://canary.discordapp.com/api/webhooks/",
 	//"https://ptb.discord.com/api/webhooks/",
 	//"https://ptb.discordapp.com/api/webhooks/",
 	//"aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv",
 	//"aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3M=",
-	//"https://pastebin.com/raw/"
+	"https://pastebin.com/raw/",
+	//" "
 ];
 
 const LANGS = [
@@ -39,34 +41,52 @@ const LANGS = [
 	//"language:TypeScript",
 	//"language:PHP",
 	//"language:Go",
-	/* "filename:md",
-	"filename:env",
-	"filename:json",
-	"filename:.yaml",
-	"filename:.yml", */
-	//"path:*.ts",
+	//"extension:md",
+	//"extension:env",
+	//"extension:json",
+	//"extension:yaml",
+	//"extension:yml",
+	//"extension:luau",
+	//"extension:lua",
+	//"extension:bat",
+	//"extension:exe",
+	//"extension:csv",
+	//"filename:java",
+	//"path:java",
+	//"extension:cs",
 	//"filename:discord",
 	//"path:discord",
 	//"path:webhook",
 	//"filename:webhook",
-	"filename:script",
+	//"filename:script",
 	//"path:log",
 	//"path:index",
-	//" "
+	" "
 ];
 
 const OTHER = [
+	//"https://discord.com/api/webhooks/",
+	//"trackers",
+	//"popups",
+	/* "spoofing",
+	"discord spoofer",
+	"roblox executor",
+	"bypasser",
+	"bypass", */
 	//"grabber",
 	//"stealer",
 	//"gen",
 	//"token",
+	//"webhooks",
 	//"channel",
+	//"bot",
 	//"roblox",
 	//"bot",
 	//"account",
 	//"logger",
 	//"solara",
 	//"cookie",
+	//"discord webhook"
 	" "
 ];
 
