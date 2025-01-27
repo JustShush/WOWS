@@ -17,7 +17,7 @@ async function main() {
 		const payload = {
 			username: "🚨 Webhook Leak Alert! 🚨",
 			avatar_url: "https://github.com/JustShush/WOWS/blob/main/imgs/whSafety.jpg?raw=true",
-			content: `@everyone\n# 🚨 **Your Discord webhook has been leaked!** 🚨\n## Your webhook was exposed online and can be used by unauthorized individuals to spam or harm your server.\n**If you don't delete the compromised webhook we will eventually delete it for you**.\n\nTo prevent this from happening again do not publish future webhook urls to publicly accessible locations.${later ? `\nYour webhook will be deleted <t:${later}:R>` : "\n"}\n\n### If you would like help protecting your webhook or have any questions join discord.gg/3jRJCApUHw`,
+			content: `@everyone\n# 🚨 **Your Discord webhook has been leaked!** 🚨\n## Your webhook was exposed online and can be used by unauthorized individuals to spam or harm your server.\n**If you don't delete the compromised webhook we will eventually delete it for you**.\n\nTo prevent this from happening again do not publish future webhook urls to publicly accessible locations.\nYour webhook will be deleted <t:${webhook.timestamp}:R>\n\n### If you would like help protecting your webhook or have any questions join discord.gg/3jRJCApUHw`,
 			embeds: [
 				{
 					title: "Webhook Leak Details",
