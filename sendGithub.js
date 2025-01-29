@@ -8,12 +8,7 @@ async function main() {
 	let toRm = [];
 	let i = 0;
 	for (webhook of whJson.gwh) {
-		let later;
-		if (!webhook.timestamp) {
-			const now = Math.floor(Date.now() / 1000); // Current Unix timestamp in seconds
-			later = now + 24 * 60 * 60;
-			webhook.timestamp = later;
-		}
+		if (!webhook.timestamp) webhook.timestamp = Date.now();
 		const payload = {
 			username: "🚨 Webhook Leak Alert! 🚨",
 			avatar_url: "https://github.com/JustShush/WOWS/blob/main/imgs/whSafety.jpg?raw=true",
