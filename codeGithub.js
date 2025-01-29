@@ -266,6 +266,32 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 			"https://raw.githubusercontent.com/AlznX/Roblox-Scripts/main/Psycho%20Hub",
 			"https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",
 			"https://raw.githubusercontent.com/Vortex194/main/main/oilwarfare",
+			"https://raw.githubusercontent.com/LiverMods/xRawnder/main/HubMoblieName/MainV5",
+			"https://raw.githubusercontent.com/FrozenScripts/frozenhubb/main/frozenhub1",
+			"https://raw.githubusercontent.com/Aidez/decaying_winter/main/GOODWILL_COMMAND_SCRIPT",
+			"https://raw.githubusercontent.com/XLinestX/GUI-Library/main/Venyx",
+			"https://raw.githubusercontent.com/Jason376-alt/jason/refs/heads/main/supermanfly",
+			"https://raw.githubusercontent.com/AEMDxLongHip/ScriptBloxFruit/main/GenshinHubKaitunV2",
+			"https://raw.githubusercontent.com/HeyGyt/star/main/main",
+			"https://raw.githubusercontent.com/HeyGyt/holidayfeels/main/main",
+			"https://raw.githubusercontent.com/HeyGyt/classicanimations/main/main",
+			"https://raw.githubusercontent.com/fieu/discord",
+			"https://raw.githubusercontent.com/eltrul/Annie/main/JroIrokOro2jJnkP",
+			"https://raw.githubusercontent.com/daucoghe2/daucoghe/main/Esp",
+			"https://raw.githubusercontent.com/TerrHacks/Sb2Cheats/main/Code",
+			"https://raw.githubusercontent.com/ImDigitalz/MoriScripts/main/MM2",
+			"https://raw.githubusercontent.com/ThatSick/HighlightMM2/main/Main",
+			"https://raw.githubusercontent.com/DExploitz/ExoticHub/main/SBBYGRG",
+			"https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3",
+			"https://raw.githubusercontent.com/smartsosilly/rblxScripts/main/srcs/treasureQuest",
+			"https://raw.githubusercontent.com/20Matrix77/dsfuwqu/main/zombie",
+			"https://raw.githubusercontent.com/Crostide/cdhc/main/gui",
+			"https://raw.githubusercontent.com/Psxvoidyx/Murdermysvoid2/main/Darkxyz23",
+			"https://raw.githubusercontent.com/Nosssa/NossLock/main/IndexWinterMAIN",
+			"https://raw.githubusercontent.com/Gokou300/Gokou300/main/KJ%20Character%20By%20Titan%20Camera%20Woman%20Real%20Source",
+			"https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2",
+			"https://raw.githubusercontent.com/samirayt/Whitelist/main/Whitelist%20Pago",
+			"https://raw.githubusercontent.com/complexorganizations/bandwidth-waster/main/random-test-file",
 
 			"https://pastebin.com/search",
 			"https://pastebin.com/raw"
@@ -433,11 +459,11 @@ async function githubSearch(QUERY) {
 						})
 					}
 
-					await new Promise(resolve => setTimeout(resolve, 250)); // I think i can do 10 requests per minute
+					await new Promise(resolve => setTimeout(resolve, 500)); // I think i can do 10 requests per minute
 				} catch (fileErr) {
 					if (fileErr.status == 403) {
 						// forbidden, returns when im getting rate limited
-						console.log(`Forbidden, rate limit reached`);
+						console.log(`Forbidden, rate limit reached`, fileErr);
 						console.log(whArray);
 						process.exit();
 					} else
