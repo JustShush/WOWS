@@ -20,8 +20,8 @@ const deleteWebhook = async (webhook) => {
 			return;
 		}
 		if (error.response) {
-			console.error(`Failed to delete webhook: ${webhook.webhook}`);
-			console.error(`Status: ${error.response.status}`, error.response.data);
+			console.error(`Failed to delete webhook: ${webhook.webhook}`, error.response.data);
+			//console.error(`Status: ${error.response.status}`, error.response.data);
 		} else {
 			console.error(`Error: ${error.message}`);
 		}
