@@ -292,6 +292,9 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 			"https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2",
 			"https://raw.githubusercontent.com/samirayt/Whitelist/main/Whitelist%20Pago",
 			"https://raw.githubusercontent.com/complexorganizations/bandwidth-waster/main/random-test-file",
+			"https://raw.githubusercontent.com/Giahao135/MEGUMI-MOVESET/main/MEGUMI",
+			"https://raw.githubusercontent.com/spacexrandom/Lua/main/DaHood",
+			"https://raw.githubusercontent.com/AnSitDz/AnSitHub/main/AutoBounty",
 
 			"https://pastebin.com/search",
 			"https://pastebin.com/raw"
