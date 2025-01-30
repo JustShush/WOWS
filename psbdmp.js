@@ -65,8 +65,8 @@ async function main() {
 			matches.forEach(webhook => {
 				if (!isValidWebhook(webhook)) return;
 				// Skip the link if it's already tested
-				if (webhooksJson.removed.includes(url) || webhooksJson.hooks.includes(url)) {
-					console.log(`Already tested link: ${url}`);
+				if (webhooksJson.removed.includes(webhook) || webhooksJson.hooks.includes(webhook)) {
+					console.log(`Already tested link: ${webhook}`);
 					return;
 				} else {
 					whArray.push(`${webhook}`);
