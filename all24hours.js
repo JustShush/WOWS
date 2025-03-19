@@ -42,13 +42,15 @@ async function main() {
 			console.log(`24Hours have not passed. ${((Math.floor(webhook.timestamp / 1000)) + (24 * 60 * 60))}`, webhook.html_url);
 			//continue;
 		} else toDelete.push(webhook);
+		const argv = process.argv.slice(2);
+		if (argv[0]) toDelete.push(webhook); // If i start the program with any argument it deletes all webhooks
 		const payload = {
 			username: "🚨 Webhook Leak Alert! 🚨",
 			avatar_url: "https://github.com/JustShush/WOWS/blob/main/imgs/whSafety.jpg?raw=true",
-			content: `@everyone\n# 🚨 **Your Discord webhook has been leaked!** 🚨\n## Your webhook was exposed online and can be used by unauthorized \
-			individuals to spam or harm your server.\n**If you don't delete the compromised webhook we will eventually delete it for you**.\n\nTo prevent \
-			this from happening again do not publish future webhook urls to publicly accessible locations.\nYour webhook will be deleted \
-			<t:${Math.floor(webhook.timestamp / 1000)}:R>\n\n### If you would like help protecting your webhook or have any questions join \
+			content: `@everyone\n# 🚨 **Your Discord webhook has been leaked!** 🚨\n## Our automated tool found your webhook URL \
+			exposed online and it can be used by unauthorized individuals to spam or harm your server.\nAnyone can publicly view your webhook URL \
+			and send messages through it. While this message may be nice, some people are sadly not as friendly and may spam the webhook.\n> As we want to keep your webhook safe, **we will be automatically deleting this webhook\
+			<t:${Math.floor(webhook.timestamp / 1000)}:R>\n\n### If you have more questions, or don't want your webhook removed, you can join our server. \
 			discord.gg/3jRJCApUHw`,
 			embeds: [
 				{
