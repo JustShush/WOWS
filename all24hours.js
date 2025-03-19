@@ -6,7 +6,8 @@ let i = 0;
 const deleteWebhook = async (webhook) => {
 	try {
 		//console.log((Date.now() - webhook.timestamp) / (1000 * 60 * 60), (Date.now() - webhook.timestamp) / (1000 * 60 * 60) < 24)
-		if ((Date.now() - webhook.timestamp) / (1000 * 60 * 60) < 24) {
+		const argv = process.argv.slice(2);
+		if (!argv[0] && (Date.now() - webhook.timestamp) / (1000 * 60 * 60) < 24) {
 			//console.log("24Hours have not passed.", webhook);
 			return;
 		}
@@ -31,10 +32,17 @@ const deleteWebhook = async (webhook) => {
 const toDelete = [];
 async function main() {
 	const whJson = require('./gwebhooks.json');
+	const general = require('./webhooks.json');
+	const removed = general.removed;
 
 	let toRm = [];
 	let i = 0;
 	for (const webhook of whJson.gwh) {
+		if (removed.includes(webhook.webhook)) {
+			console.log(`WHITELISTED: ${webhook.html_url} ${webhook.webhook}`);
+			whJson.gwh = whJson.gwh.filter(obj => obj.webhook !== webhook.webhook);
+			continue;
+		}
 		const now = Date.now(); // Current Unix timestamp in seconds
 		if (!webhook.timestamp) webhook.timestamp = now;
 		//return console.log(Math.floor((now - webhook.timestamp) / (1000 * 60 * 60)));
@@ -78,7 +86,8 @@ async function main() {
 		}
 		if (webhook.webhook.startsWith("https://media.guilded.gg/webhooks/")) { payload.username = "Webhook Leak Alert!"; payload.content.replaceAll("Discord", "Guilded")};
 		try {
-			const res = await axios.post(webhook.webhook, payload);
+			//const res = await axios.post(webhook.webhook, payload);
+			const res = await axios.post("https://discord.com/api/webhooks/1327055246026997893/Uiyw9TSH7QM-c4RC5z8Nhpa7JZrcIOWq6Gc1FP2CRrQxK1UbYzbYqJqdF8h64BOi-ylD", payload);
 			if (res.message == "Unknown Webhook" || res.code == 10015) return console.log("in", webhook.webhook);
 			i++;
 			console.log(`[${i}] Webhook warning message sent successfully!`);
