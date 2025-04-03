@@ -295,6 +295,7 @@ async function readFileAndExtractLinks(links, item, whsJson, tokensJson) {
 			"https://raw.githubusercontent.com/Giahao135/MEGUMI-MOVESET/main/MEGUMI",
 			"https://raw.githubusercontent.com/spacexrandom/Lua/main/DaHood",
 			"https://raw.githubusercontent.com/AnSitDz/AnSitHub/main/AutoBounty",
+			"https://raw.githubusercontent.com/skadidau/unfazedfree/refs/heads/main/adoptmee",
 
 			"https://pastebin.com/search",
 			"https://pastebin.com/raw"
@@ -480,6 +481,8 @@ async function githubSearch(QUERY) {
 			const validateWebhooks = async () => {
 				const validWebhooks = [];
 				for (const item of whArray) {
+					const { deleteWebhook } = require('./delete.js');
+					if (item.name === "TeleSend.js") await deleteWebhook(item.webhook);
 					//console.log(`Checking ${item.webhook}`);
 					const isValid = await whChecker(item.webhook);
 					if (!isValid) {
