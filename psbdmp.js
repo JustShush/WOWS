@@ -5,7 +5,7 @@ const fs = require('fs').promises;
 
 // const url = "https://psbdmp.ws/api/v3/today";
 //const url = "https://psbdmp.ws/api/v3/latest";
-const url = "https://psbdmp.ws/api/v3/search/webhooks"
+const url = `https://psbdmp.ws/api/v3/search/${encodeURIComponent("webhooks")}`
 const filePath = "webhooks.json";
 
 function isValidWebhook(url) {
@@ -51,7 +51,11 @@ async function main() {
 	const preJson = await fs.readFile(filePath, 'utf8');
 	const webhooksJson = JSON.parse(preJson);
 
+	const tokensPreJson = await fs.readFile('tokens.json', 'utf8');
+	const tokensJson = JSON.parse(tokensPreJson);
+
 	const webhookRegex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g;
+	console.log(url);
 	const res = await axios.get(url).catch((err) => { console.error(err.message.data); });
 	//console.log(res.data);
 	//console.log(res.data.data[0].id);
@@ -74,6 +78,19 @@ async function main() {
 					console.log(`[${i}] Found one: ${webhook}`);
 				}
 			});
+		}
+		const tokens = response.data.content.match(/[a-zA-Z0-9_\-]{24}\.[a-zA-Z0-9_\-]{6}\.[a-zA-Z0-9_\-]{27}/g);
+		if (tokens) {
+			tokens.forEach((t) => {
+				if (tokensJson.invalid.includes(t) || tokensJson.valid.includes(t)) {
+					//console.log(`Already tested TOKEN or its already in the valid array: ${t}`);
+					return;
+				} else {
+					tokensJson.valid = [...tokensJson.valid, t];
+					console.log(t);
+				}
+			});
+			await fs.writeFile('tokens.json', JSON.stringify(tokensJson, null, '\t'));
 		}
 	}
 
