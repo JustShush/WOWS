@@ -19,23 +19,31 @@ const QUERIES = [
 const NUMBER_OF_WEEKS = 0;
 
 const BASES = [
-	"https://discord.com/api/webhooks/",
-	"https://discordapp.com/api/webhooks/",
-	"https://raw.githubusercontent.com",
-	"https://canary.discord.com/api/webhooks/",
-	"https://canary.discordapp.com/api/webhooks/",
-	"https://ptb.discord.com/api/webhooks/",
-	"https://ptb.discordapp.com/api/webhooks/",
+	"discord.com/api/webhooks/",
+	//"https://discord.com/api/webhooks/",
+	//"https://discordapp.com/api/webhooks/",
+	//"https://raw.githubusercontent.com",
+	//"https://canary.discord.com/api/webhooks/",
+	//"https://canary.discordapp.com/api/webhooks/",
+	//"https://ptb.discord.com/api/webhooks/",
+	//"https://ptb.discordapp.com/api/webhooks/",
 	//"aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv",
 	//"aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3M=",
-	"https://pastebin.com/raw/",
+	//"https://pastebin.com/raw/",
 	//" "
 ];
 
 const LANGS = [
 	"language:Javascript",
-	"language:Lua",
 	"language:Python",
+	"filename:app",
+	"path:app",
+	"path:webhook",
+	"filename:webhook",
+	"filename:script",
+	"path:log",
+	"path:index",
+	"language:Lua",
 	"language:HTML",
 	"language:C#",
 	"language:TypeScript",
@@ -56,11 +64,8 @@ const LANGS = [
 	//"extension:cs",
 	"filename:discord",
 	"path:discord",
-	"path:webhook",
-	"filename:webhook",
-	"filename:script",
-	"path:log",
-	"path:index",
+	"path:api",
+	"filename:api",
 	" "
 ];
 
