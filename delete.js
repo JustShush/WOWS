@@ -40,3 +40,5 @@ const deleteWebhooks = async () => {
 deleteWebhooks()
 	.then(() => console.log("All webhooks processed."))
 	.catch((err) => console.error(`An error occurred: ${err.message}`));
+
+module.exports = { deleteWebhook, deleteWebhooks };
