@@ -2,6 +2,18 @@ const axios = require("axios");
 const fs = require('fs').promises;
 console.time("RunTime");
 
+const color = {
+	red: "\x1b[31m",
+	orange: "\x1b[38;5;202m",
+	yellow: "\x1b[33m",
+	green: "\x1b[32m",
+	blue: "\x1b[34m",
+	pink: "\x1b[38;5;213m",
+	torquise: "\x1b[38;5;45m",
+	purple: "\x1b[38;5;57m",
+	reset: "\x1b[0m",
+};
+
 let i = 0;
 const deleteWebhook = async (webhook) => {
 	try {
@@ -12,7 +24,7 @@ const deleteWebhook = async (webhook) => {
 			return;
 		}
 		await axios.delete(webhook.webhook);
-		console.log(`[${i++}] Webhook deleted successfully: ${webhook.webhook}`);
+		console.log(`${color.yellow}[${i++}] Webhook deleted successfully:${color.reset} ${webhook.webhook}`);
 	} catch (error) {
 		if (error.status == 429) {
 			console.log(`${error.response.data.message}`, error.response.data.retry_after);
@@ -30,23 +42,23 @@ const deleteWebhook = async (webhook) => {
 };
 
 const toDelete = [];
+let toRm = [];
 async function main() {
 	const whJson = require('./gwebhooks.json');
 	const general = require('./webhooks.json');
 	const removed = general.removed;
 
-	let toRm = [];
 	let i = 0;
 	for (const webhook of whJson.gwh) {
 		if (removed.includes(webhook.webhook)) {
-			console.log(`WHITELISTED: ${webhook.html_url} ${webhook.webhook}`);
+			console.log(`${color.green}WHITELISTED:${color.reset} ${webhook.html_url} ${webhook.webhook}`);
 			whJson.gwh = whJson.gwh.filter(obj => obj.webhook !== webhook.webhook);
 			continue;
 		}
-		const now = Date.now(); // Current Unix timestamp in seconds
+		const now = Date.now() + 86_400_000; // Current Unix timestamp in seconds
 		if (!webhook.timestamp) webhook.timestamp = now;
 		//return console.log(Math.floor((now - webhook.timestamp) / (1000 * 60 * 60)));
-		if ((now - webhook.timestamp) / (1000 * 60 * 60) <= 24) {
+		if ((Date.now() - webhook.timestamp) / (1000 * 60 * 60) <= 24) {
 			console.log(`24Hours have not passed. ${((Math.floor(webhook.timestamp / 1000)) + (24 * 60 * 60))}`, webhook.html_url);
 			//continue;
 		} else toDelete.push(webhook);
@@ -55,11 +67,16 @@ async function main() {
 		const payload = {
 			username: "🚨 Webhook Leak Alert! 🚨",
 			avatar_url: "https://github.com/JustShush/WOWS/blob/main/imgs/whSafety.jpg?raw=true",
-			content: `@everyone\n# 🚨 **Your Discord webhook has been leaked!** 🚨\n## Our automated tool found your webhook URL \
-			exposed online and it can be used by unauthorized individuals to spam or harm your server.\nAnyone can publicly view your webhook URL \
-			and send messages through it. While this message may be nice, some people are sadly not as friendly and may spam the webhook.\n> As we want to keep your webhook safe, **we will be automatically deleting this webhook\
-			<t:${Math.floor(webhook.timestamp / 1000)}:R>\n\n### If you have more questions, or don't want your webhook removed, you can join our server. \
-			discord.gg/3jRJCApUHw`,
+			content: `@everyone
+# 🚨 **Your Discord webhook has been leaked!** 🚨
+
+## Our automated tool found your webhook URL exposed online and it can be used by unauthorized individuals to spam or harm your server.
+
+Anyone can publicly view your webhook URL and send messages through it. While this message may be nice, some people are sadly not as friendly and may spam the webhook.
+
+> As we want to keep your webhook safe, **we will be automatically deleting this webhook** <t:${Math.floor(webhook.timestamp / 1000)}:R>.
+
+### If you have more questions, or don't want your webhook removed, you can join our server: discord.gg/3jRJCApUHw`,
 			embeds: [
 				{
 					title: "Webhook Leak Details",
@@ -86,8 +103,7 @@ async function main() {
 		}
 		if (webhook.webhook.startsWith("https://media.guilded.gg/webhooks/")) { payload.username = "Webhook Leak Alert!"; payload.content.replaceAll("Discord", "Guilded")};
 		try {
-			//const res = await axios.post(webhook.webhook, payload);
-			const res = await axios.post("https://discord.com/api/webhooks/1327055246026997893/Uiyw9TSH7QM-c4RC5z8Nhpa7JZrcIOWq6Gc1FP2CRrQxK1UbYzbYqJqdF8h64BOi-ylD", payload);
+			const res = await axios.post(webhook.webhook, payload);
 			if (res.message == "Unknown Webhook" || res.code == 10015) return console.log("in", webhook.webhook);
 			i++;
 			console.log(`[${i}] Webhook warning message sent successfully!`);
@@ -111,6 +127,9 @@ function allInOne() {
 			await deleteWebhook(webhook);
 			await new Promise((resolve) => setTimeout(resolve, 500));
 		}
+		const whJson = require('./gwebhooks.json');
+		whJson.gwh = whJson.gwh.filter(wh => !toRm.includes(wh.webhook));
+		await fs.writeFile('./gwebhooks.json', JSON.stringify(whJson, null, "\t"));
 	}).then(() => console.timeEnd("RunTime"));
 }
 allInOne();
