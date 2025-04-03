@@ -89,14 +89,14 @@ async function fetchContents(owner, repo, regex, path = '') {
 		for (const file of files) {
 			if (ignoreFiles.includes(file.name.toLowerCase())) {
 				console.log(`${color.pink}[fileCount:${fileCount++}] returning early, cuz its a file to ignore:${color.reset}`, file.name, file.html_url);
-				await new Promise(resolve => setTimeout(resolve, 1_000)); // 1sec delay until next file fetch
+				await new Promise(resolve => setTimeout(resolve, 200)); // 1sec delay until next file fetch
 				continue;
 			} else if (file.type === 'file' && !file.name.match(/\.(png|jpg|jpeg|gif|bin|webp|vad|asm|xml|c|h|cpp|hpp|yaml|yml|bat|sh|template|example|sample|toml|css|zip)$/i)) { // Skip binary/image files
 				await checkFile(owner, repo, file.path, regex);
 			} else if (file.type === 'dir' && !file.name.match(/^(assets|node_modules|dist)$/i)) {
 				await fetchContents(owner, repo, regex, file.path); // Recurse into directories
 			}
-			await new Promise(resolve => setTimeout(resolve, 1_000)); // 1sec delay until next file fetch
+			await new Promise(resolve => setTimeout(resolve, 200)); // 1sec delay until next file fetch
 		}
 	} catch (error) {
 		console.log(error)
@@ -130,7 +130,15 @@ async function checkFile(owner, repo, filePath, regex) {
 		// Search for regex matches
 		const found = content.match(regex);
 		if (found) {
-			matches.push(...found); // Push all matches into the array
+			//matches.push(...found); // Push all matches into the array
+			found.forEach(wh => {
+				matches.push({
+					name: response.data.name,
+					path: response.data.path,
+					html_url: response.data.html_url,
+					webhook: wh
+				})
+			})
 			console.log(`${color.green}[file:${fileCount}] Match found in file:${color.reset} ${filePath} | ${response.data.html_url}`);
 			wasFound = true;
 		}
@@ -155,4 +163,4 @@ process.on("SIGINT", () => {
 
 const regex = /(?:https?:\/\/(?:discord\.com|discordapp\.com|canary\.discord\.com|canary\.discordapp\.com)\/api\/webhooks\/\d+\/[\w-]+)/g; // Replace with your regex
 // Call the function
-fetchContents("1nks", "1nks.github.io", regex).then(() => { console.timeEnd("RunTime"); });
+fetchContents("Hoith95", "Pet-99", regex).then(() => { fs.writeFile("repoRes.json", JSON.stringify(matches, null, "\t")); console.timeEnd("RunTime"); });
