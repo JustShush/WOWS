@@ -440,12 +440,12 @@ async function githubSearch(QUERY) {
 							if (!isValidWebhook(webhook)) return invalidCount++;
 							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 								console.log(`${color.red}BlackListed Account: ${item.url} ${color.reset}`);
-								await deleteWebhook(wh);
+								await deleteWebhook(webhook);
 								return;
 							}
 							if (blacklistJson.repos.includes(item.repository.name)) {
 								console.log(`${color.red}BlackListed Repo: ${item.url} ${color.reset}`);
-								await deleteWebhook(wh);
+								await deleteWebhook(webhook);
 								return;
 							}
 							// Skip the link if it's already tested
@@ -476,12 +476,12 @@ async function githubSearch(QUERY) {
 							if (whArray.includes(BASE + lp)) return console.log(`Already checked: ${BASE + lp}`);
 							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 								console.log(`${color.red}BlackListed Account: ${item.url} ${color.reset}`);
-								await deleteWebhook(wh);
+								await deleteWebhook(BASE + lp);
 								return;
 							}
 							if (blacklistJson.repos.includes(item.repository.name)) {
 								console.log(`${color.red}BlackListed Repo: ${item.url} ${color.reset}`);
-								await deleteWebhook(wh);
+								await deleteWebhook(BASE + lp);
 								return;
 							}
 							if (whsJson.removed.includes(BASE + lp) || whsJson.hooks.includes(BASE + lp)) return;
