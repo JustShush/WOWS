@@ -1,6 +1,7 @@
 const { githubToken } = require('./config.json');
 const axios = require("axios");
 const fs = require('fs').promises;
+const { deleteWebhook } = require('./delete.js');
 
 // make the search in code but with pagination
 
@@ -359,6 +360,7 @@ async function githubSearch(QUERY) {
 			// Iterate over each item to fetch file content
 			for (const item of items) {
 				const fileUrl = item.url; // URL to fetch the file content
+				//return console.log(item, item.repository.owner.login, item.repository.name)
 
 				try {
 					const fileRes = await axios.get(fileUrl, {
@@ -366,6 +368,9 @@ async function githubSearch(QUERY) {
 							Authorization: `token ${githubToken}`
 						}
 					});
+
+					const blackListPreJson = await fs.readFile('blacklist.json', 'utf-8');
+					const blacklistJson = JSON.parse(blackListPreJson);
 
 					const tokensPreJson = await fs.readFile('tokens.json', 'utf8');
 					const tokensJson = JSON.parse(tokensPreJson);
@@ -383,8 +388,18 @@ async function githubSearch(QUERY) {
 							const decoded = Buffer.from(base, 'base64').toString('utf-8');
 							const matching = decoded.match(webhookRegex);
 							if (matching) {
-								matching.forEach((wh) => {
+								matching.forEach(async (wh) => {
 									if (!isValidWebhook(wh)) return invalidCount++;
+									if (blacklistJson.accounts.includes(item.repository.owner.login)) {
+										console.log(`${color.red}BlackListed Account: ${item.url} ${color.reset}`);
+										await deleteWebhook(wh);
+										return;
+									}
+									if (blacklistJson.repos.includes(item.repository.name)) {
+										console.log(`${color.red}BlackListed Repo: ${item.url} ${color.reset}`);
+										await deleteWebhook(wh);
+										return;
+									}
 									if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
 										//console.log(`Already tested link: ${wh}`);
 										return;
@@ -421,8 +436,18 @@ async function githubSearch(QUERY) {
 
 					const matches = fileContent.match(webhookRegex);
 					if (matches) {
-						matches.forEach((webhook) => {
+						matches.forEach(async (webhook) => {
 							if (!isValidWebhook(webhook)) return invalidCount++;
+							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
+								console.log(`${color.red}BlackListed Account: ${item.url} ${color.reset}`);
+								await deleteWebhook(wh);
+								return;
+							}
+							if (blacklistJson.repos.includes(item.repository.name)) {
+								console.log(`${color.red}BlackListed Repo: ${item.url} ${color.reset}`);
+								await deleteWebhook(wh);
+								return;
+							}
 							// Skip the link if it's already tested
 							if (whsJson.removed.includes(webhook) || whsJson.hooks.includes(webhook)) {
 								//console.log(`Already tested link: ${webhook}`);
@@ -446,9 +471,19 @@ async function githubSearch(QUERY) {
 					// and then using another regex for the "id/token" of the webhook and add them together if there are
 					const lastPartMatches = fileContent.match(WH_LAST_PART_REGEX);
 					if (lastPartMatches) {
-						lastPartMatches.forEach((lp) => {
+						lastPartMatches.forEach(async (lp) => {
 							if (!isValidWebhook(BASE + lp)) return invalidCount++;
 							if (whArray.includes(BASE + lp)) return console.log(`Already checked: ${BASE + lp}`);
+							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
+								console.log(`${color.red}BlackListed Account: ${item.url} ${color.reset}`);
+								await deleteWebhook(wh);
+								return;
+							}
+							if (blacklistJson.repos.includes(item.repository.name)) {
+								console.log(`${color.red}BlackListed Repo: ${item.url} ${color.reset}`);
+								await deleteWebhook(wh);
+								return;
+							}
 							if (whsJson.removed.includes(BASE + lp) || whsJson.hooks.includes(BASE + lp)) return;
 							console.log(`Found webhook in file: ${item.html_url}`);
 							i++;
