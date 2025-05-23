@@ -1,7 +1,7 @@
-const { githubToken } = require('./config.json');
+const { whLogs } = require('./config.json');
 const axios = require("axios");
-const fs = require('fs').promises;
 const { githubSearch } = require('./codeGithub.js');
+let { finalLogs } = require("./codeGithub.js");
 
 // my idea is to make a function that generates the urls, this way i can check/save urls that where good to search again
 // the function would return like this: https://discord.com/api/webhooks/ language:Javascript grabber
@@ -13,13 +13,19 @@ const QUERIES = [
 	"https://discord.com/api/webhooks/ language:Javascript channel",
 	"https://discord.com/api/webhooks/ language:Lua grabber",
 
-	"https://discord.com/api/webhooks/"
+	"https://discord.com/api/webhooks/",
+	"https://discordapp.com/api/webhooks/",
+	"https://ptb.discord.com/api/webhooks/",
+	"https://canary.discord.com/api/webhooks/"
 ];
 
 const NUMBER_OF_WEEKS = 0;
 
 const BASES = [
 	"discord.com/api/webhooks/",
+	"discordapp.com/api/webhooks/",
+	//"canary.discord.com/api/webhooks/",
+	//"ptb.discord.com/api/webhooks/",
 	//"https://discord.com/api/webhooks/",
 	//"https://discordapp.com/api/webhooks/",
 	//"https://raw.githubusercontent.com",
@@ -41,31 +47,33 @@ const LANGS = [
 	"path:webhook",
 	"filename:webhook",
 	"filename:script",
-	"path:log",
+	//"path:log",
 	"path:index",
 	"language:Lua",
 	"language:HTML",
-	"language:C#",
+	//"language:C#",
 	"language:TypeScript",
-	"language:PHP",
-	"language:Go",
-	"extension:md",
+	//"language:PHP",
+	//"language:Go",
+	//"extension:md",
 	"extension:env",
 	"extension:json",
-	"extension:yaml",
-	"extension:yml",
+	//"extension:yaml",
+	//"extension:yml",
 	//"extension:luau",
 	//"extension:lua",
 	//"extension:bat",
 	//"extension:exe",
-	"extension:csv",
+	//"extension:csv",
 	//"filename:java",
 	//"path:java",
 	//"extension:cs",
-	"filename:discord",
+	//"filename:discord",
 	"path:discord",
 	"path:api",
 	"filename:api",
+	"path:image",
+	"filename:config.js",
 	" "
 ];
 
@@ -144,6 +152,7 @@ async function getQuery(BasesI, LangsI, OtherI) {
 		while (LangsI < LangsLen) {
 			while (OtherI < OtherLen) {
 				console.log(`${color.blue}${BASES[BasesI]} ${LANGS[LangsI]} ${OTHER[OtherI]}${color.reset}`);
+				await axios.post(whLogs, {username: "Search QUERY", content: `Searching with: \`${BASES[BasesI]} ${LANGS[LangsI]} ${OTHER[OtherI]}\``})
 				await githubSearch(`${BASES[BasesI]} ${LANGS[LangsI]} ${OTHER[OtherI]}`);
 				console.log(`${color.orange}10sec Wait until next query fetch${color.reset}`);
 				await new Promise(resolve => setTimeout(resolve, 10_000));
@@ -160,7 +169,8 @@ async function getQuery(BasesI, LangsI, OtherI) {
 
 console.time("RunTime");
 async function main() {
-	getQuery(0, 0, 0).then(() => { console.timeEnd("RunTime"); });
+	await axios.post(whLogs, {content: `### Starting the search...`});
+	getQuery(0, 0, 0).then(async () => { console.timeEnd("RunTime"); await axios.post(whLogs, {content: `# Search Ended.\n${finalLogs.total} Webhooks Found.`}); finalLogs = [];});
 }
 
 main();
