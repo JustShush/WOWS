@@ -2,11 +2,13 @@ const { githubToken } = require('./config.json');
 const axios = require("axios");
 const fs = require('fs').promises;
 const { deleteWebhook } = require('./delete.js');
+const { whLogs } = require("./config.json");
+let finalLogs = { total: 0 };
 
 // make the search in code but with pagination
 
 // what you want to be searched
-const query = "https://discord.com/api/webhooks/ language:C#";
+const query = "https://discord.com/api/webhooks/ language:Javascript";
 
 // to fetch for best match or recently updated
 // false to recently updated | true for best match
@@ -40,6 +42,8 @@ const TELEGRAM_TOKEN_REGEX = /^\d{9}:[A-Za-z0-9_-]{35}$/gm;
 
 var whArray = [];
 var visitedGitusercontentURLs = [];
+var bufferLogsDiscord = [];
+const chunks = [];
 
 /**
  * Checks if a Discord webhook is valid.
@@ -391,12 +395,48 @@ async function githubSearch(QUERY) {
 								matching.forEach(async (wh) => {
 									if (!isValidWebhook(wh)) return invalidCount++;
 									if (blacklistJson.accounts.includes(item.repository.owner.login)) {
-										console.log(`${color.red}BlackListed Account: ${item.url} ${color.reset}`);
+										console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
+										await deleteWebhook(wh);
+										//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`)
+										return;
+									}
+									if (blacklistJson.repos.includes(item.repository.name)) {
+										console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
+										await deleteWebhook(wh);
+										//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`)
+										return;
+									}
+									if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
+										//console.log(`Already tested link: ${wh}`);
+										return;
+									} else {
+										console.log(`Found webhook in file: ${item.html_url}`);
+										i++;
+										console.log(`[${i}] Webhook: ${wh}`);
+										const data = {
+											path: item.path,
+											name: item.name,
+											owner: item.repository.owner.login,
+											html_url: item.html_url,
+											webhook: wh
+										};
+										whArray.push(data);
+										//bufferLogsDiscord.push(`Possible WebHook|\`Account:\` ${item.repository.owner.login}\n\`Repo:\` <${item.html_url}>\n\`WebHook:\` ${wh}`);
+									}
+								})
+							}
+							// This also checks if the theres the last part encoded with BASE64
+							const withBase64 = decoded.match(WH_LAST_PART_REGEX);
+							if (withBase64) {
+								withBase64.forEach(async (wh) => {
+									if (!isValidWebhook(wh)) return invalidCount++;
+									if (blacklistJson.accounts.includes(item.repository.owner.login)) {
+										console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
 										await deleteWebhook(wh);
 										return;
 									}
 									if (blacklistJson.repos.includes(item.repository.name)) {
-										console.log(`${color.red}BlackListed Repo: ${item.url} ${color.reset}`);
+										console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
 										await deleteWebhook(wh);
 										return;
 									}
@@ -410,6 +450,7 @@ async function githubSearch(QUERY) {
 										const data = {
 											path: item.path,
 											name: item.name,
+											owner: item.repository.owner.login,
 											html_url: item.html_url,
 											webhook: wh
 										};
@@ -439,13 +480,15 @@ async function githubSearch(QUERY) {
 						matches.forEach(async (webhook) => {
 							if (!isValidWebhook(webhook)) return invalidCount++;
 							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
-								console.log(`${color.red}BlackListed Account: ${item.url} ${color.reset}`);
+								console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
 								await deleteWebhook(webhook);
+								//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`);
 								return;
 							}
 							if (blacklistJson.repos.includes(item.repository.name)) {
-								console.log(`${color.red}BlackListed Repo: ${item.url} ${color.reset}`);
+								console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
 								await deleteWebhook(webhook);
+								//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`);
 								return;
 							}
 							// Skip the link if it's already tested
@@ -459,10 +502,12 @@ async function githubSearch(QUERY) {
 								const data = {
 									path: item.path,
 									name: item.name,
+									owner: item.repository.owner.login,
 									html_url: item.html_url,
 									webhook: webhook
 								};
 								whArray.push(data);
+								//bufferLogsDiscord.push(`Possible WebHook|\`Account:\` ${item.repository.owner.login}\n\`Repo:\` <${item.html_url}>\n\`WebHook:\` ${webhook}`);
 							}
 						})
 					}
@@ -475,13 +520,15 @@ async function githubSearch(QUERY) {
 							if (!isValidWebhook(BASE + lp)) return invalidCount++;
 							if (whArray.includes(BASE + lp)) return console.log(`Already checked: ${BASE + lp}`);
 							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
-								console.log(`${color.red}BlackListed Account: ${item.url} ${color.reset}`);
+								console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
 								await deleteWebhook(BASE + lp);
+								//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`);
 								return;
 							}
 							if (blacklistJson.repos.includes(item.repository.name)) {
-								console.log(`${color.red}BlackListed Repo: ${item.url} ${color.reset}`);
+								console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
 								await deleteWebhook(BASE + lp);
+								//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`)
 								return;
 							}
 							if (whsJson.removed.includes(BASE + lp) || whsJson.hooks.includes(BASE + lp)) return;
@@ -491,10 +538,12 @@ async function githubSearch(QUERY) {
 							const data = {
 								path: item.path,
 								name: item.name,
+								owner: item.repository.owner.login,
 								html_url: item.html_url,
 								webhook: BASE + lp
 							};
 							whArray.push(data);
+							//bufferLogsDiscord.push(`Possible WebHook|\`Account:\` ${item.repository.owner.login}\n\`Repo:\` <${item.html_url}>\n\`WebHook:\` ${BASE + lp}`);
 						})
 					}
 
@@ -525,6 +574,8 @@ async function githubSearch(QUERY) {
 						invalidWebhooks.push(item.webhook);
 					} else {
 						validWebhooks.push(item); // Keep the valid item
+						pushBuffer(`Possible WebHook|\`Account:\` ${item.owner}\n\`Repo:\` <${item.html_url}>\n\`WebHook:\` ${item.webhook}`);
+						//bufferLogsDiscord.push(`Possible WebHook|\`Account:\` ${item.owner}\n\`Repo:\` <${item.html_url}>\n\`WebHook:\` ${item.webhook}`);
 					}
 					await new Promise(resolve => setImmediate(() => setTimeout(resolve, 300)));
 				}
@@ -558,23 +609,67 @@ async function githubSearch(QUERY) {
 			// Write the updated JSON back to the file
 			await fs.writeFile("webhooks.json", JSON.stringify(whsJson, null, "\t"));
 			// Add delay between requests
+			if (bufferLogsDiscord.length > 0) {
+				let previousTotal = finalLogs.total;
+				let newTotal = previousTotal + bufferLogsDiscord.length;
+				finalLogs.total = newTotal;
+				handleDiscordMessage();
+				//await axios.post(whLogs, { username: "WOWS", content: bufferLogsDiscord.join(`\n`) });
+				bufferLogsDiscord = [];
+			}
+			bufferLogsDiscord = [];
 			console.log(`Waiting 10 sec to fetch the next page: ${page + 1}`);
 			await new Promise(resolve => setTimeout(resolve, 10_000));
 			whArray = [];
 			page++;
 		} catch (err) {
-			if (err.response.status == 422) {
+			if (err.response?.status == 422) {
 				console.error(`ERROR: Cannot access beyond the first 1000 results, or the endpoint has been spammed. when trying to fetch page: ${page}`, err.response.statusText)
 				console.log(`${color.green}Searched for: ${QUERY ? QUERY : query} | with Best Match: ${bestMatch}${color.reset}`);
-			} else if (err.response)
+			} else if (err.response) {
 				console.error(`Error ${err.response.status} on page ${page}: ${err.response.statusText}`);
-			else
+				console.error(err);
+			}
+			else {
 				console.error(`Error fetching page ${page}:`, err.message);
+				console.error(err);
+			}
 			break;
 		}
 	}
 }
 
-module.exports = { githubSearch };
+module.exports = { githubSearch, finalLogs };
 
-//githubSearch().then(() => { console.timeEnd("RunTime"); });
+//githubSearch(`/ip-api.com/json/ webhooks`).then(() => { console.timeEnd("RunTime"); });
+
+async function handleDiscordMessage() {
+	// Send each chunk
+	for (const chunk of chunks) {
+		try {
+			await axios.post(whLogs, { username: "WOWS", content: chunk });
+			await new Promise(res => setTimeout(res, 1000));
+		} catch (error) {
+			console.error('Error sending message:', error.response?.data || error.message);
+		}
+	}
+	if (bufferLogsDiscord.length > 0) {
+		try {
+			await axios.post(whLogs, { content: bufferLogsDiscord.join('\n') });
+			bufferLogsDiscord = [];
+		} catch (error) {
+			console.error('Error sending message:', error.response?.data || error.message);
+		}
+	}
+}
+
+async function pushBuffer(content) {
+	const MAX_LENGTH = 1950;
+	const totalLength = (bufferLogsDiscord.join('\n')).length + content.length + (bufferLogsDiscord.length > 0 ? 1 : 0); // +1 for newline if buffer isn't empty
+	if (totalLength > MAX_LENGTH) {
+		chunks.push(bufferLogsDiscord.join('\n'));
+		bufferLogsDiscord = [content];
+	} else {
+		bufferLogsDiscord.push(content);
+	}
+}
