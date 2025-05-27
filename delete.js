@@ -7,11 +7,12 @@ const webhookUrls = [
 ];
 
 // Function to delete a webhook
-const deleteWebhook = async (url) => {
+const deleteWebhook = async (url, options) => {
 	try {
 		const response = await axios.delete(url);
 		console.log(`Webhook deleted successfully: ${url}`);
 	} catch (error) {
+		if (options) return;
 		if (error.status == 429) {
 			console.log(`${error.response.data.message}`, error.response.data.retry_after);
 			await new Promise((resolve) => setTimeout(resolve, (error.response.data.retry_after * 1_000) + 500));
