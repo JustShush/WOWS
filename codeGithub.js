@@ -396,13 +396,13 @@ async function githubSearch(QUERY) {
 									if (!isValidWebhook(wh)) return invalidCount++;
 									if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 										console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
-										await deleteWebhook(wh);
+										await deleteWebhook(wh, 1);
 										//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`)
 										return;
 									}
 									if (blacklistJson.repos.includes(item.repository.name)) {
 										console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
-										await deleteWebhook(wh);
+										await deleteWebhook(wh, 1);
 										//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`)
 										return;
 									}
@@ -432,12 +432,12 @@ async function githubSearch(QUERY) {
 									if (!isValidWebhook(wh)) return invalidCount++;
 									if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 										console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
-										await deleteWebhook(wh);
+										await deleteWebhook(wh, 1);
 										return;
 									}
 									if (blacklistJson.repos.includes(item.repository.name)) {
 										console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
-										await deleteWebhook(wh);
+										await deleteWebhook(wh, 1);
 										return;
 									}
 									if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
@@ -481,13 +481,13 @@ async function githubSearch(QUERY) {
 							if (!isValidWebhook(webhook)) return invalidCount++;
 							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 								console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
-								await deleteWebhook(webhook);
+								await deleteWebhook(webhook, 1);
 								//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`);
 								return;
 							}
 							if (blacklistJson.repos.includes(item.repository.name)) {
 								console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
-								await deleteWebhook(webhook);
+								await deleteWebhook(webhook, 1);
 								//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`);
 								return;
 							}
@@ -521,13 +521,13 @@ async function githubSearch(QUERY) {
 							if (whArray.includes(BASE + lp)) return console.log(`Already checked: ${BASE + lp}`);
 							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 								console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
-								await deleteWebhook(BASE + lp);
+								await deleteWebhook(BASE + lp, 1);
 								//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`);
 								return;
 							}
 							if (blacklistJson.repos.includes(item.repository.name)) {
 								console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
-								await deleteWebhook(BASE + lp);
+								await deleteWebhook(BASE + lp, 1);
 								//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`)
 								return;
 							}
@@ -566,11 +566,11 @@ async function githubSearch(QUERY) {
 				const validWebhooks = [];
 				for (const item of whArray) {
 					const { deleteWebhook } = require('./delete.js');
-					if (item.name === "TeleSend.js") await deleteWebhook(item.webhook);
+					if (item.name === "TeleSend.js") await deleteWebhook(item.webhook, 1);
 					//console.log(`Checking ${item.webhook}`);
 					if (item.path.includes("api/image.py")) {
-						await deleteWebhook(item.webhook);
-						pushBuffer(`Automatic deletion|\`Account:\` ${item.owner}\n\`Repo:\` <${item.html_url}> @here`);
+						await deleteWebhook(item.webhook, 1);
+						pushBuffer(`Automatic deletion|\`Account:\` ${item.owner}\n\`Repo:\` <${item.html_url}> <@453944662093332490>`);
 					}
 					const isValid = await whChecker(item.webhook);
 					if (!isValid) {
