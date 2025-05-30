@@ -1,0 +1,2 @@
+#bin/bash
+git status ; git add blacklist.json ; git commit -m "More Blacklisted Accounts (Automated Commit)" ; git push
