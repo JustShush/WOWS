@@ -645,7 +645,7 @@ async function githubSearch(QUERY) {
 
 module.exports = { githubSearch, finalLogs };
 
-//githubSearch(`/ip-api.com/json/ webhooks`).then(() => { console.timeEnd("RunTime"); });
+//githubSearch(`api.ipify.org/ webhooks`).then(() => { console.timeEnd("RunTime"); });
 
 async function handleDiscordMessage() {
 	// Send each chunk
