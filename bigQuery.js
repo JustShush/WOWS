@@ -23,9 +23,11 @@ const NUMBER_OF_WEEKS = 0;
 
 const BASES = [
 	"discord.com/api/webhooks/",
-	"discordapp.com/api/webhooks/",
+	//"discordapp.com/api/webhooks/",
 	//"canary.discord.com/api/webhooks/",
 	//"ptb.discord.com/api/webhooks/",
+	//"canary.discordapp.com/api/webhooks/",
+	//"ptb.discordapp.com/api/webhooks/",
 	//"https://discord.com/api/webhooks/",
 	//"https://discordapp.com/api/webhooks/",
 	//"https://raw.githubusercontent.com",
@@ -42,17 +44,17 @@ const BASES = [
 const LANGS = [
 	"language:Javascript",
 	"language:Python",
-	"filename:app",
+	//"filename:app",
 	"path:app",
 	"path:webhook",
-	"filename:webhook",
+	//"filename:webhook",
 	"filename:script",
 	//"path:log",
 	"path:index",
 	"language:Lua",
 	"language:HTML",
 	//"language:C#",
-	"language:TypeScript",
+	//"language:TypeScript",
 	//"language:PHP",
 	//"language:Go",
 	//"extension:md",
@@ -71,9 +73,11 @@ const LANGS = [
 	//"filename:discord",
 	"path:discord",
 	"path:api",
-	"filename:api",
 	"path:image",
+	"filename:image.py",
 	"filename:config.js",
+	"api.ipify.org/",
+	".ROBLOSECURITY",
 	" "
 ];
 
