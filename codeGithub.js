@@ -568,7 +568,7 @@ async function githubSearch(QUERY) {
 					const { deleteWebhook } = require('./delete.js');
 					if (item.name === "TeleSend.js") await deleteWebhook(item.webhook, 1);
 					//console.log(`Checking ${item.webhook}`);
-					if (item.path.includes("api/image.py")) {
+					if (item.path.toLowerCase().includes("api/image.py")) {
 						await deleteWebhook(item.webhook, 1);
 						pushBuffer(`Automatic deletion|\`Account:\` ${item.owner}\n\`Repo:\` <${item.html_url}> <@453944662093332490>`);
 					}
