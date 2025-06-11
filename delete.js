@@ -13,10 +13,9 @@ const deleteWebhook = async (url, options) => {
 		console.log(`Webhook deleted successfully: ${url}`);
 	} catch (error) {
 		if (error.status == 429) {
-			console.log(`${error.response.data.message}`, error.response.data.retry_after);
+			console.log(`WH Delete: ${error.response.data.message}`, error.response.data.retry_after);
 			await new Promise((resolve) => setTimeout(resolve, (error.response.data.retry_after * 1_000) + 500));
-			deleteWebhook(url);
-			return;
+			return await deleteWebhook(url);
 		}
 		if (options) return;
 		if (error.response) {
