@@ -571,6 +571,8 @@ async function githubSearch(QUERY) {
 					if (item.path.toLowerCase().includes("api/image.py")) {
 						await deleteWebhook(item.webhook, 1);
 						pushBuffer(`Automatic deletion|\`Account:\` ${item.owner}\n\`Repo:\` <${item.html_url}> <@453944662093332490>`);
+						invalidWebhooks.push(item.webhook);
+						continue;
 					}
 					const isValid = await whChecker(item.webhook);
 					if (!isValid) {
