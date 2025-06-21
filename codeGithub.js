@@ -552,7 +552,8 @@ async function githubSearch(QUERY) {
 						fileContent.toLowerCase().includes(word.toLowerCase())
 					);
 
-					if (!blacklistJson.accounts.includes(item.repository.owner.login) && found) {
+					if (found && !blacklistJson.accounts.includes(item.repository.owner.login) &&
+						item.repository.owner.login.toLowerCase() !== "justshush") {
 						console.log(`${color.pink}Repo has banned words: ${item.html_url} ${color.reset}`);
 						pushBuffer(`Contains banned words|\`Account:\` ${item.repository.owner.login}\n\`Repo:\` <${item.html_url}> <@453944662093332490>`);
 					}
