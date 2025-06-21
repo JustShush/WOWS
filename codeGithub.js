@@ -547,6 +547,16 @@ async function githubSearch(QUERY) {
 						})
 					}
 
+					const suspiciousWords = ["dekrypt", "discord image logger", "github.com/dekrypted"];
+					const found = suspiciousWords.some(word =>
+						fileContent.toLowerCase().includes(word.toLowerCase())
+					);
+
+					if (!blacklistJson.accounts.includes(item.repository.owner.login) && found) {
+						console.log(`${color.pink}Repo has banned words: ${item.html_url} ${color.reset}`);
+						pushBuffer(`Contains banned words|\`Account:\` ${item.repository.owner.login}\n\`Repo:\` <${item.html_url}> <@453944662093332490>`);
+					}
+
 					await new Promise(resolve => setTimeout(resolve, 500)); // I think i can do 10 requests per minute
 				} catch (fileErr) {
 					if (fileErr.status == 403) {
