@@ -547,15 +547,24 @@ async function githubSearch(QUERY) {
 						})
 					}
 
-					const suspiciousWords = ["dekrypt", "discord image logger", "github.com/dekrypted"];
+					const suspiciousWords = ["dekrypt", "discord image logger", "github.com/dekrypted", "ipapi.co/json/"];
 					const found = suspiciousWords.some(word =>
 						fileContent.toLowerCase().includes(word.toLowerCase())
 					);
-
 					if (found && !blacklistJson.accounts.includes(item.repository.owner.login) &&
-						item.repository.owner.login.toLowerCase() !== "justshush") {
+						item.repository.owner.login.toLowerCase() !== "justshush" &&
+						!item.path.toLowerCase().includes("api/image.py") ) {
 						console.log(`${color.pink}Repo has banned words: ${item.html_url} ${color.reset}`);
 						pushBuffer(`Contains banned words|\`Account:\` ${item.repository.owner.login}\n\`Repo:\` <${item.html_url}> <@453944662093332490>`);
+					}
+
+					const mongoWords = ["mongo", "mongodb"];
+					const mongoFound = mongoWords.some(word =>
+						fileContent.toLowerCase().includes(word.toLowerCase())
+					);
+					if (mongoFound && !item.name.toLowerCase() == "package.json") {
+						console.log(`${color.torquise}Mongo Detected: ${item.html_url} ${color.reset}`);
+						pushBuffer(`Mongo Detected|\`Account:\` ${item.repository.owner.login}\n\`Repo:\` <${item.html_url}> <@453944662093332490>`);
 					}
 
 					await new Promise(resolve => setTimeout(resolve, 500)); // I think i can do 10 requests per minute
