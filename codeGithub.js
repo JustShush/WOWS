@@ -547,7 +547,7 @@ async function githubSearch(QUERY) {
 						})
 					}
 
-					const suspiciousWords = ["dekrypt", "discord image logger", "github.com/dekrypted", "ipapi.co/json/"];
+					const suspiciousWords = ["dekrypt", "discord image logger", "github.com/dekrypted", "ipapi.co/json/", "api.ipify.org"];
 					const found = suspiciousWords.some(word =>
 						fileContent.toLowerCase().includes(word.toLowerCase())
 					);
