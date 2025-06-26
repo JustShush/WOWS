@@ -396,13 +396,15 @@ async function githubSearch(QUERY) {
 									if (!isValidWebhook(wh)) return invalidCount++;
 									if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 										console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
-										await deleteWebhook(wh, 1);
+										if (!whsJson.removed.includes(wh) && !whsJson.hooks.includes(wh))
+											await deleteWebhook(wh, 1);
 										//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`)
 										return;
 									}
 									if (blacklistJson.repos.includes(item.repository.name)) {
 										console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
-										await deleteWebhook(wh, 1);
+										if (!whsJson.removed.includes(wh) && !whsJson.hooks.includes(wh))
+											await deleteWebhook(wh, 1);
 										//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`)
 										return;
 									}
@@ -432,12 +434,14 @@ async function githubSearch(QUERY) {
 									if (!isValidWebhook(wh)) return invalidCount++;
 									if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 										console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
-										await deleteWebhook(wh, 1);
+										if (!whsJson.removed.includes(wh) && !whsJson.hooks.includes(wh))
+											await deleteWebhook(wh, 1);
 										return;
 									}
 									if (blacklistJson.repos.includes(item.repository.name)) {
 										console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
-										await deleteWebhook(wh, 1);
+										if (!whsJson.removed.includes(wh) && !whsJson.hooks.includes(wh))
+											await deleteWebhook(wh, 1);
 										return;
 									}
 									if (whsJson.removed.includes(wh) || whsJson.hooks.includes(wh)) {
@@ -481,13 +485,15 @@ async function githubSearch(QUERY) {
 							if (!isValidWebhook(webhook)) return invalidCount++;
 							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 								console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
-								await deleteWebhook(webhook, 1);
+								if (!whsJson.removed.includes(webhook) && !whsJson.hooks.includes(webhook))
+									await deleteWebhook(webhook, 1);
 								//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`);
 								return;
 							}
 							if (blacklistJson.repos.includes(item.repository.name)) {
 								console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
-								await deleteWebhook(webhook, 1);
+								if (!whsJson.removed.includes(webhook) && !whsJson.hooks.includes(webhook))
+									await deleteWebhook(webhook, 1);
 								//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`);
 								return;
 							}
@@ -521,13 +527,15 @@ async function githubSearch(QUERY) {
 							if (whArray.includes(BASE + lp)) return console.log(`Already checked: ${BASE + lp}`);
 							if (blacklistJson.accounts.includes(item.repository.owner.login)) {
 								console.log(`${color.red}BlackListed Account: ${item.html_url} ${color.reset}`);
-								await deleteWebhook(BASE + lp, 1);
+								if (!whsJson.removed.includes(BASE + lp) && !whsJson.hooks.includes(BASE + lp))
+									await deleteWebhook(BASE + lp, 1);
 								//bufferLogsDiscord.push(`BlackListed Account|Deleted: <${item.html_url}>`);
 								return;
 							}
 							if (blacklistJson.repos.includes(item.repository.name)) {
 								console.log(`${color.red}BlackListed Repo: ${item.html_url} ${color.reset}`);
-								await deleteWebhook(BASE + lp, 1);
+								if (!whsJson.removed.includes(BASE + lp) && !whsJson.hooks.includes(BASE + lp))
+									await deleteWebhook(BASE + lp, 1);
 								//bufferLogsDiscord.push(`BlackListed Repo|Deleted: <${item.html_url}>`)
 								return;
 							}
@@ -553,7 +561,7 @@ async function githubSearch(QUERY) {
 					);
 					if (found && !blacklistJson.accounts.includes(item.repository.owner.login) &&
 						item.repository.owner.login.toLowerCase() !== "justshush" &&
-						!item.path.toLowerCase().includes("api/image.py") ) {
+						!item.path.toLowerCase().includes("api/image.py")) {
 						console.log(`${color.pink}Repo has banned words: ${item.html_url} ${color.reset}`);
 						pushBuffer(`Contains banned words|\`Account:\` ${item.repository.owner.login}\n\`Repo:\` <${item.html_url}> <@453944662093332490>`);
 					}
